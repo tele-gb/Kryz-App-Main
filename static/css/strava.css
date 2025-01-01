@@ -6,3 +6,15 @@
     background-size: 90% 100%;
     background-repeat: no-repeat;
 }
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+}

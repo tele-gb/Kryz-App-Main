@@ -20,6 +20,7 @@ from wtforms.validators import DataRequired
 from guitar import Guitar
 from Strava_Stats import StravaStats
 import fretboard  
+import sqlite3
 
 # from IPython.display import SVG, display
 
@@ -194,9 +195,41 @@ def guitarscale():
 
 #define some globel variable
 
-@app.route('/Takeaway')
+@app.route('/Takeaway', methods=['GET', 'POST'])
 def ttracker():
-    return render_template('Takeaway.html')
+    if request.method == 'POST':
+        date = request.form['Date']
+        where = request.form['Where']
+        cost = request.form['Cost']
+
+        # Insert the data into the database
+        conn = sqlite3.connect('SqlliteDB/takeaway.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO spendings (date, location, cost) 
+            VALUES (?, ?, ?)
+        ''', (date, where, cost))
+        conn.commit()
+        conn.close()
+
+    # Fetch all records from the database
+    conn = sqlite3.connect('SqlliteDB/takeaway.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM spendings')
+    records = c.fetchall()
+    conn.close()
+
+
+    # Get the total amount spent
+    conn = sqlite3.connect('SqlliteDB/takeaway.db')
+    c = conn.cursor()
+    c.execute('SELECT sum(cost) FROM spendings')
+    totalspend = c.fetchone()[0]
+    conn.close()
+
+
+
+    return render_template('Takeaway.html', records=records,totalspend=totalspend)
 
 
 
