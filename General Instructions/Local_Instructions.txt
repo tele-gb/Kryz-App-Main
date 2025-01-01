@@ -1,11 +1,15 @@
+-----------------First time
 #create a venv
 python -m venv myenv
 
 #activate the venv
 --navigate to root
-source myenv/Scripts/activate
+source myenv/Scripts/activate --used in unix
+.\myenv\Scripts\Activate --used in powershell
 
 #install requirments
 pip install -r requirements.txt 
 
-#run basic_flask.py
+-------------------Other times
+.\myenv\Scripts\Activate --used in powershell
+python basic_flask.py
