@@ -1,0 +1,31 @@
+{% extends "base.html"%}
+{% block content %}
+<div class = 'jumbotron'>
+
+
+    <h2>Here is the exchange code: {{code}}</h2>
+    <h2>This is used to pass to strava to get an access token</h2>
+
+    <h1>Authorization Results</h1>
+    <p>Hi, <strong>{{ athlete.firstname }}</strong>.
+
+    Your access token:
+    <pre>{{ access_token|tojson(indent=2) }}</pre>
+    </p>
+
+    <a href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a>
+
+</div>
+
+<!-- Content outside of Jumbotron -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Content Outside of Jumbotron</h2>
+            <p>{{token}}</p>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

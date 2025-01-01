@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+{% block content %}
+
+<head>    <link rel="stylesheet" type="text/css" href="static/css/calc.css"> </head>
+
+
+<div class = 'jumbotron'>
+    <h1>Hello</h1>
+</div>
+
+{% for table in tables %}
+{{titles[loop.index]}}
+{{ table|safe }}
+{% endfor %}
+
+
+{% endblock %}

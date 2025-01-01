@@ -1,0 +1,39 @@
+1 - Create a VM Instance on GCE
+1a - create a firewall rule that looks something like this (port 8080) - can create in console as well
+
+You don't need to change port on which your app is exposed to the Internet - if you're OK with 8088 then use it.
+Just make sure that you create a GCP firewall rule to let the traffic in. By default HTTP server and HTTPS server open ports 80 and 443 respectively. Port 8088 is blocked by default.
+Example firewall rule to open up port 8080 for an instance with "tag1" tag from all IP's:
+
+gcloud compute --project=myproject firewall-rules create port8088 
+--direction=INGRESS 
+--priority=1000 
+--network=default 
+--action=ALLOW 
+--rules=tcp:8088 
+--source-ranges=0.0.0.0/0 
+--target-tags=tag1 ## tag can be something different likt the http server
+
+Also - assign "tag1" tag to the VM you want to "unblock".
+
+
+2 - Create SSH Keys on the VM
+    ssh-keygen
+3 - Navigate to SSH directory
+    cd .ssh
+4 - access and copy the public key
+    cat id_rsa.pub
+5 - This Public ssh needs to be added to Github ssh keys in order to clone repositores
+6 - Once done this copy the ssh repotiory url - this will be used to clone
+7 - git clone git@github.com:tele-gb/Web_cacl_app.git
+8 - Install venv
+    python3 -m venv venv
+9 - Activate the venv (from the app directory you have just cloned)
+    source venv/bin/activate
+10 - install pip and requirments into the venv
+    python3 -m pip install --upgrade pip
+    python3 -m pip install -r requirements.txt
+11 - run the gunicorn command to start the app (this is specific for port 8080)
+    gunicorn basic_flask:app -b 0.0.0.0:8080
+
+12 - you can access the app @ http://34.28.40.253:8080 (or whatever the external ip address of the vm is)

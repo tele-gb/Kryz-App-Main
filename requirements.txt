@@ -1,0 +1,15 @@
+Flask
+numpy
+pandas
+matplotlib
+seaborn
+gunicorn
+stravaio
+Requests
+stravalib
+Flask-WTF
+WTForms
+svgutils
+pyyaml 
+pathlib
+fretboard

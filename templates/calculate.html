@@ -1,0 +1,123 @@
+{% extends "base.html"%}
+{% block content %}
+<head>    <link rel="stylesheet" type="text/css" href="static/css/calc.css"> </head>
+<div class = 'jumbotron'>
+
+    <h1>Fill in account details</h1>
+
+    <form id="debt-form">
+            <label for="Lender">Lender</label>
+            <input type="text" name = 'Lender' >
+            <br>
+            <label for="Balance">Balance</label>
+            <input type="text" name = 'Balance' >
+            <br>
+            <label for="interest_Rate">APR</label>
+            <input type="text" name = 'APR' >
+            <br>
+            <label for="min_pay">Minimum Payment %</label>
+            <input type="text" name = 'min_pay' >
+            <br>
+            <label for="type">Debt Type</label>
+            <input type="text" name = 'type' >
+            <br>
+            <input type="submit" value="submit form">
+    </form>
+
+    <button id="calculate-button">Calculate</button>
+</div>
+
+<div class="container">
+    <table id="debt-table">
+        <thead>
+            <tr>
+                <th>Lender</th>
+                <th>Balance</th>
+                <th>APR</th>
+                <th>Minimum Payment %</th>
+                <th>Debt Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Existing rows will be added here -->
+        </tbody>
+    </table>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const debtForm = document.getElementById("debt-form");
+            const debtTable = document.getElementById("debt-table");
+
+            debtForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const lender = debtForm.elements["Lender"].value;
+                const balance = debtForm.elements["Balance"].value;
+                const apr = debtForm.elements["APR"].value;
+                const minPayment = debtForm.elements["min_pay"].value;
+                const debtType = debtForm.elements["type"].value;
+
+                if (lender && balance && apr && minPayment && debtType) {
+                    const newRow = `<tr>
+                        <td>${lender}</td>
+                        <td>${balance}</td>
+                        <td>${apr}</td>
+                        <td>${minPayment}</td>
+                        <td>${debtType}</td>
+                    </tr>`;
+                    debtTable.querySelector("tbody").insertAdjacentHTML("beforeend", newRow);
+
+                    // Clear the form fields
+                    debtForm.reset();
+                }
+            });
+
+            const calculateButton = document.getElementById("calculate-button");
+
+            calculateButton.addEventListener("click", function () {
+                // Convert the table data to a format you need and use it for calculation.
+                const debtData = [];
+                const rows = debtTable.querySelectorAll("tbody tr");
+
+                rows.forEach((row) => {
+                    const cells = row.querySelectorAll("td");
+                    const rowData = {
+                        lender: cells[0].textContent,
+                        balance: cells[1].textContent,
+                        apr: cells[2].textContent,
+                        minPayment: cells[3].textContent,
+                        debtType: cells[4].textContent,
+                    };
+                    debtData.push(rowData);
+                });
+
+                // You can now use debtData as input for your debt calculator function.
+                console.log(debtData);
+
+                // Send the table data to the backend using fetch and POST request
+                fetch('/process_table_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(debtData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Response from server:', data);
+                    // Handle the response from the server if needed
+                    // Redirect to the calc_results page after processing the data
+                    window.location.href = '/calc_results';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+
+    </script>
+</div>
+{% endblock %}

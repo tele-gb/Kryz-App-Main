@@ -1,0 +1,42 @@
+{% extends "base.html"%}
+{% block content %}
+<head>    <link rel="stylesheet" type="text/css" href="static/css/guitar.css"> </head>
+<div class = 'jumbotron'>
+
+    <h1>What scale are you trying to work out</h1>
+    <!-- <h1>Replace with info form</h1> -->
+
+
+    <h1>Scale Viewer</h1>
+    <form method="POST" action="{{ url_for('guitarscale') }}" id="guitar-form">
+
+        <label for="scale_type">Select Scale Type:</label>
+        <select id="scale_type" name="scale_type" required>
+            {% for key, value in scale_types.items() %}
+                <option value="{{ key }}">{{ key }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="root_note">Root Note:</label>
+        <input type="text" id="root_note" name="root_note" required><br>
+
+        <label for="tuning_type">Select Tuning:</label>
+        <select id="tuning_type" name="tuning_type" required>
+            {% for key, value in tuning_types.items() %}
+                <option value="{{ key }}">{{ key }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+
+</div>
+
+{% if svg_image %}
+<h1>Root:{{root}} </h1>
+<h1>Scale: {{scale_type}}  </h1>
+<h1>Tuning: {{tuning_type}}</h1>
+<img src="data:image/svg+xml;base64,{{ svg_image }}" alt="Scale Fretboard" >
+{% endif %}
+{% endblock %}
