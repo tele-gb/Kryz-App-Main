@@ -1,3 +1,3 @@
-# Strava-App
+# My app
 
-#This is a simple web app to get my best 5k times from Strava
+#This is a simple web app with a a few personal projects on it
