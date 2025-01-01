@@ -189,6 +189,17 @@ def guitarscale():
                            )
 
 
+#-------------------------------------------------------------------------#
+#----------------Takeaway TRACKER-----------------------------------------#
+
+#define some globel variable
+
+@app.route('/Takeaway')
+def ttracker():
+    return render_template('Takeaway.html')
+
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('/404.html'), 404

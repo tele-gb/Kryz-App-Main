@@ -1,0 +1,73 @@
+{% extends "base.html"%}
+{% block content %}
+<div class='jumbotron'>
+
+    <h1>Takeaway Tracker</h1>
+
+    <form id="takeaway-form">
+        <label for="Date">When</label>
+        <input type="text" name = 'Date' >
+        <br>
+        <label for="Where">Where</label>
+        <input type="text" name = 'Where' >
+        <br>
+        <label for="Cost">How Much?</label>
+        <input type="text" name = 'Cost' >
+        <br>
+
+        <input type="submit" value="Add to the list">
+</form>
+
+<button id="sum">How much have you spent?</button>
+
+</div>
+
+<div class="container">
+    <table id="takeaway-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Where</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Existing rows will be added here -->
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const TTForm = document.getElementById("takeaway-form");
+            const TTTable = document.getElementById("takeaway-table");
+
+            TTForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const date = TTForm.elements["Date"].value;
+                const where =TTForm.elements["Where"].value;
+                const cost = TTForm.elements["Cost"].value;
+
+
+                if (date && where && cost ) {
+                    const newRow = `<tr>
+                        <td>${date}</td>
+                        <td>${where}</td>
+                        <td>${cost}</td>
+
+                    </tr>`;
+                    TTTable.querySelector("tbody").insertAdjacentHTML("beforeend", newRow);
+
+                    // Clear the form fields
+                    TTForm.reset();
+                }
+            })})
+        ;
+
+    </script>
+</div>
+
+
+
+{% endblock %}
+
