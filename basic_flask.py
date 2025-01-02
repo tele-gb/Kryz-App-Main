@@ -91,7 +91,7 @@ def lastruns2():
     print(f'Header: {header2}')
  
     actlist = strava.all_activities(header2)
-    testlist = strava.activities_list(actlist,5000,50)
+    testlist = strava.activities_list(actlist,5000,100)
     testdf = strava.multi_activities(50,testlist,header2)
     testdf2 = strava.rolling_df(testdf,3)
 
