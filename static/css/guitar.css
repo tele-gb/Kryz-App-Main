@@ -33,3 +33,29 @@
 #guitar-form button:hover {
     background-color: #0056b3;
 }
+
+    /* Optional: Style for the container */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        font-family: Arial, sans-serif;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+
+    #svg_image {
+        display: flex;
+        justify-content: center;  /* Centers the image horizontally */
+        align-items: center;      /* Centers the image vertically */
+        height: 100vh;            /* Full viewport height */
+    }
+    
+    img {
+        max-width: 100%;   /* Ensure the image fits within the container */
+        height: auto;      /* Keeps the aspect ratio intact */
+    }

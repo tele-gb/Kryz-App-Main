@@ -1,0 +1,81 @@
+/* Style the form elements */
+#taway-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #f2f2f2;
+}
+
+#taway-form label {
+    display: block;
+    margin-top: 10px;
+}
+
+#taway-form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#taway-form button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#taway-form button:hover {
+    background-color: #0056b3;
+}
+    
+    
+    
+    
+    /* Basic table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* Makes sure table borders are collapsed */
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left; /* Aligns text to the left in cells */
+        border-bottom: 1px solid #ddd; /* Light grey border for separation */
+    }
+
+    th {
+        background-color: #f4f4f4; /* Lighter background for the header */
+        font-weight: bold;
+    }
+
+    td {
+        background-color: #fafafa; /* Slight background color for rows */
+    }
+
+    tr:nth-child(even) td {
+        background-color: #f9f9f9; /* Alternating row colors */
+    }
+
+    tr:hover td {
+        background-color: #eaeaea; /* Highlight row on hover */
+    }
+
+    /* Optional: Style for the container */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        font-family: Arial, sans-serif;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }

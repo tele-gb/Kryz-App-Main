@@ -7,7 +7,6 @@ myenv/
 # Environment variables file
 *.cfg
 
-# DB Files
+#db files
 *.db
 *.sqllite3
-

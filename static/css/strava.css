@@ -6,3 +6,46 @@
     background-size: 90% 100%;
     background-repeat: no-repeat;
 }
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+}
+
+    /* Basic table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* Makes sure table borders are collapsed */
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left; /* Aligns text to the left in cells */
+        border-bottom: 1px solid #ddd; /* Light grey border for separation */
+    }
+
+    th {
+        background-color: #f4f4f4; /* Lighter background for the header */
+        font-weight: bold;
+    }
+
+    td {
+        background-color: #fafafa; /* Slight background color for rows */
+    }
+
+    tr:nth-child(even) td {
+        background-color: #f9f9f9; /* Alternating row colors */
+    }
+
+    tr:hover td {
+        background-color: #eaeaea; /* Highlight row on hover */
+    }
