@@ -91,9 +91,11 @@ def lastruns2():
     print(f'Header: {header2}')
  
     actlist = strava.all_activities(header2)
-    testlist = strava.activities_list(actlist,5000,10)
+    testlist = strava.activities_list(actlist,5000,50)
     testdf = strava.multi_activities(50,testlist,header2)
     testdf2 = strava.rolling_df(testdf,3)
+
+    strava.load_to_sql(testdf)
 
     mean_of_runs = strava.mean_run_time(testdf2)
     median_of_runs = strava.median_run_time(testdf2)

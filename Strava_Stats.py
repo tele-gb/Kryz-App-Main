@@ -19,6 +19,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.dates as mdates
+import sqlite3
 
 
 
@@ -171,6 +172,14 @@ class StravaStats:
         input_df2["Rolling_Mean"] = input_df2["Rolling_Mean"].apply(self.convert_to_minutes)
         input_df2["Rolling_Median"] = input_df2["Rolling_Median"].apply(self.convert_to_minutes)   
         return input_df2
+    
+    def load_to_sql(self,input_df):
+        conn = sqlite3.connect('SqlliteDB/strava.db')  
+        c = conn.cursor()
+        # columns=["RunID","Date","Distance","Best_Time"]
+        df_selected = input_df
+        df_selected.to_sql("activities", conn, if_exists="replace", index=False)
+        conn.close()
 
     def plot(self,df):
         df['Rolling_Mean'] = df['Rolling_Mean'].replace(0, np.nan)
