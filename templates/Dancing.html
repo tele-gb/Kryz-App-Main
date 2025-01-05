@@ -35,65 +35,58 @@
     </table>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('simulation-form');
-        const resultsBody = document.getElementById('results-body');
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('simulation-form');
+    const resultsBody = document.getElementById('results-body');
 
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();  // Prevent form from submitting normally
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent form from submitting normally
 
-            // Get form data
-            const bpm = document.getElementById('bpm').value;
-            const population = document.getElementById('population').value;
+        // Clear the results table for a new simulation
+        resultsBody.innerHTML = '';
 
-            // Send a POST request to start the simulation
-            fetch('/run_simulation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ bpm: bpm, population: population })
-            })
-            .then(response => {
-                // Check if the response is valid
-                if (!response.ok) {
-                    throw new Error('Simulation failed to start');
-                }
-                
-                // Once POST is successful, initiate the EventSource for real-time updates
-                const eventSource = new EventSource('/run_simulation');
+        // Create or update the single row for the simulation
+        let simulationRow = document.createElement('tr');
+        resultsBody.appendChild(simulationRow);
 
-                eventSource.onmessage = function (event) {
-                    try {
-                        console.log('Received SSE data:', event.data); // Debugging log
-                        const data = JSON.parse(event.data);  // Parse the incoming data
+        // Get form data
+        const bpm = document.getElementById('bpm').value;
+        const population = document.getElementById('population').value;
 
-                        // Update the table with the data
-                        const row = `
-                            <tr>
-                                <td>${data.tick}</td>
-                                <td>${data.total_alive}</td>
-                                <td>${data.total_dead}</td>
-                                <td>${data.infected_count}</td>
-                            </tr>
-                        `;
-                        resultsBody.insertAdjacentHTML('beforeend', row);  // Insert the new row in the table
-                    } catch (error) {
-                        console.error("Error parsing SSE data:", error);
-                    }
-                };
+        // Define and initialize the EventSource
+        const eventSource = new EventSource(`/run_simulation?bpm=${bpm}&population=${population}`);
 
-                // Handle errors on the SSE connection
-                eventSource.onerror = function () {
-                    console.error("Error with the SSE connection");
-                    eventSource.close();
-                };
-            })
-            .catch(error => {
-                console.error('Error starting simulation:', error);
-            });
-        });
+        // Listen for messages from the server
+        eventSource.onmessage = function (event) {
+            console.log('Raw event data:', event.data);
+            if (event.data === '{"message": "Simulation completed"}') {
+                // Close the connection when simulation is complete
+                eventSource.close();
+                console.log('Simulation completed.');
+            } else {
+        // Parse the data and update the single row
+            try {
+                const data = JSON.parse(event.data);
+                simulationRow.innerHTML = `
+                    <td>${data.tick}</td>
+                    <td>${data.total_alive}</td>
+                    <td>${data.total_dead}</td>
+                    <td>${data.infected_count}</td>
+                `;
+            } catch (error) {
+                console.error('Error parsing data:', error);
+            }
+    }
+};
+
+
+        // // Handle errors (optional)
+        // eventSource.onerror = function (error) {
+        //     console.error('Error with SSE:', error);
+        //     eventSource.close();
+        // };
     });
+});
 </script>
 
 

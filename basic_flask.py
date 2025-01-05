@@ -246,9 +246,9 @@ def dancing_simulator():
 @app.route('/run_simulation', methods=['POST', 'GET'])
 def run_simulation():
     # Get bpm and population from request data
-    data = request.get_json()  # Parse the incoming JSON data
-    bpm = int(data.get('bpm'))
-    population = int(data.get('population'))
+    bpm = int(request.args.get('bpm', 120))  # Default to 120 if not provided
+    population = int(request.args.get('population', 100))  # Default to 100 if not provided
+
     
     # Initialize the simulation
     dg = DancingGame(bpm, population)
@@ -309,9 +309,10 @@ def run_simulation():
 
             # Yield the response in the correct SSE format
             yield f"data: {json_data}\n\n"
+            print(len(infected_calories))
             
             # Add a sleep if you want the simulation to update at intervals
-            time.sleep(0.5)
+            time.sleep(0.02)
     
         # Once the simulation ends, yield a message to indicate completion
         yield "data: {\"message\": \"Simulation completed\"}\n\n"
