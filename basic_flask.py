@@ -25,7 +25,7 @@ import time
 from Dancing_Class import DancingGame
 import json
 from flask import Flask, Response, request, jsonify
-
+import math
 # from IPython.display import SVG, display
 
 
@@ -263,6 +263,7 @@ def run_simulation():
     total_alive = dg.population
     tick = dg.tick
 
+
     # Initialize the response to stream data back to the client
     def generate():
         nonlocal infected_calories, total_infected, remaining_pop, total_dead, total_alive, tick
@@ -271,6 +272,9 @@ def run_simulation():
             tick += 1
             new_infected = 0
             died_this_tick = 0
+            minutes=0
+            hours=0
+            day=0
             
             adjusted_infection_rate, adjusted_reduction, adjusted_infection_period = dg.adjust_rates()
             
@@ -288,10 +292,18 @@ def run_simulation():
             total_dead += died_this_tick
             total_alive = dg.population - total_dead
             # print(total_alive)
+            minutes=tick*5
+            hours=math.floor((tick*5)/60)
+            days=math.floor(((tick*5)/60)/24)
+            print(died_this_tick,new_infected)
+
 
             # Prepare the data to be sent to the client as SSE
             data = {
                 'tick': tick,
+                'minutes':minutes,
+                'hours':hours,
+                'days':days,
                 'total_alive': total_alive,
                 'total_dead': total_dead,
                 'infected_count': total_infected
@@ -312,7 +324,7 @@ def run_simulation():
             print(len(infected_calories))
             
             # Add a sleep if you want the simulation to update at intervals
-            time.sleep(0.02)
+            time.sleep(0.01)
     
         # Once the simulation ends, yield a message to indicate completion
         yield "data: {\"message\": \"Simulation completed\"}\n\n"

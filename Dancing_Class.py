@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import datetime
 from datetime import datetime,timedelta
 import calendar
+import math
 
 
 
@@ -39,7 +40,7 @@ class DancingGame:
 
         adjusted_infection_rate = self.base_infection_rate * scale_factor
         adjusted_reduction = self.base_reduction * (scale_factor ** 3)
-        adjusted_infection_period = math.floor(max(1, self.base_infection_period / (scale_factor * 0.9)))
+        adjusted_infection_period = math.floor(max(1, self.base_infection_period / (scale_factor * 2)))
 
         return adjusted_infection_rate, adjusted_reduction, adjusted_infection_period
 
