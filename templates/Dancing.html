@@ -1,0 +1,100 @@
+{% extends "base.html"%}
+{% block content %}
+
+<head>    <link rel="stylesheet" type="text/css" href="static/css/ttracker.css"> </head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<div class = 'jumbotron'>
+    <h1>Infectious Dancing Simulator</h1>
+
+    <form id="simulation-form" method="POST">
+        <label for="bpm">BPM:</label>
+        <input type="number" id="bpm" name="bpm" value="120" min="60" max="240" required><br>
+
+        <label for="population">Initial Population:</label>
+        <input type="number" id="population" name="population" value="50" min="10" max="1000" required><br>
+
+        <button type="submit">Run Simulation</button>
+</div>
+
+<div id="results">
+    <h2>Simulation Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tick</th>
+                <th>Total Alive</th>
+                <th>Total Dead</th>
+                <th>Infected Count</th>
+            </tr>
+        </thead>
+        <tbody id="results-body">
+            <!-- Rows are dynamically added here -->
+        </tbody>
+    </table>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('simulation-form');
+        const resultsBody = document.getElementById('results-body');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();  // Prevent form from submitting normally
+
+            // Get form data
+            const bpm = document.getElementById('bpm').value;
+            const population = document.getElementById('population').value;
+
+            // Send a POST request to start the simulation
+            fetch('/run_simulation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ bpm: bpm, population: population })
+            })
+            .then(response => {
+                // Check if the response is valid
+                if (!response.ok) {
+                    throw new Error('Simulation failed to start');
+                }
+                
+                // Once POST is successful, initiate the EventSource for real-time updates
+                const eventSource = new EventSource('/run_simulation');
+
+                eventSource.onmessage = function (event) {
+                    try {
+                        console.log('Received SSE data:', event.data); // Debugging log
+                        const data = JSON.parse(event.data);  // Parse the incoming data
+
+                        // Update the table with the data
+                        const row = `
+                            <tr>
+                                <td>${data.tick}</td>
+                                <td>${data.total_alive}</td>
+                                <td>${data.total_dead}</td>
+                                <td>${data.infected_count}</td>
+                            </tr>
+                        `;
+                        resultsBody.insertAdjacentHTML('beforeend', row);  // Insert the new row in the table
+                    } catch (error) {
+                        console.error("Error parsing SSE data:", error);
+                    }
+                };
+
+                // Handle errors on the SSE connection
+                eventSource.onerror = function () {
+                    console.error("Error with the SSE connection");
+                    eventSource.close();
+                };
+            })
+            .catch(error => {
+                console.error('Error starting simulation:', error);
+            });
+        });
+    });
+</script>
+
+
+{% endblock %}
