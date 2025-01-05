@@ -39,122 +39,105 @@
     </table>
 
    
-
+    <canvas id="infectedChart" width="300" height="200"></canvas>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('simulation-form');
-    const resultsBody = document.getElementById('results-body');
-
-    form.addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevent form from submitting normally
-
-        // Clear the results table for a new simulation
-        resultsBody.innerHTML = '';
-
-        // Create or update the single row for the simulation
-        let simulationRow = document.createElement('tr');
-        resultsBody.appendChild(simulationRow);
-
-        // Get form data
-        const bpm = document.getElementById('bpm').value;
-        const population = document.getElementById('population').value;
-
-        // Define and initialize the EventSource
-        const eventSource = new EventSource(`/run_simulation?bpm=${bpm}&population=${population}`);
-
-        // Listen for messages from the server
-        eventSource.onmessage = function (event) {
-            console.log('Raw event data:', event.data);
-            if (event.data === '{"message": "Simulation completed"}') {
-                // Close the connection when simulation is complete
-                eventSource.close();
-                console.log('Simulation completed.');
-            } else {
-        // Parse the data and update the single row
-            try {
-                const data = JSON.parse(event.data);
-                simulationRow.innerHTML = `
-                    <td>${data.tick}</td>
-                    <td>${data.minutes}</td>
-                    <td>${data.hours}</td>
-                    <td>${data.days}</td>
-
-                    <td>${data.total_alive}</td>
-                    <td>${data.total_dead}</td>
-                    <td>${data.infected_count}</td>
-                `;
-            } catch (error) {
-                console.error('Error parsing data:', error);
-            }
-    }
-};
 
 
-        // // Handle errors (optional)
-        // eventSource.onerror = function (error) {
-        //     console.error('Error with SSE:', error);
-        //     eventSource.close();
-        // };
-    });
-});
-</script>
-
-<canvas id="infectedChart" width="400" height="200"></canvas>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ctx = document.getElementById('infectedChart').getContext('2d');
-        const infectedChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [], // X-axis labels (time or ticks)
-                datasets: [{
-                    label: 'Infected',
-                    data: [], // Y-axis data (number of infected)
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        type: 'linear',
-                        position: 'bottom',
-                    },
-                    y: {
-                        beginAtZero: true
+        // Get the canvas context for the chart
+        const canvas = document.getElementById('infectedChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');  // Access the canvas context
+    
+            // Create the chart instance
+            const infectedChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Infected',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
                     }
                 }
-            }
-        });
+            });
     
-        // Set up SSE to receive real-time data
-        const eventSource = new EventSource('/run_simulation');
+            // Handle the form submission
+            const form = document.getElementById('simulation-form');
+            const resultsBody = document.getElementById('results-body');
     
-        eventSource.onmessage = function (event) {
-            const data = JSON.parse(event.data);
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
     
-            // Add the new data to the chart
-            if (data.infected_count !== undefined) {
-                const currentTime = data.tick; // Assuming tick is the time or iteration
-                const infectedCount = data.infected_count;
+                // Clear the results table for a new simulation
+                resultsBody.innerHTML = '';
+                infectedChart.data.datasets[0].data = []; 
     
-                // Add new data to chart
-                infectedChart.data.labels.push(currentTime);
-                infectedChart.data.datasets[0].data.push(infectedCount);
+                // Create or update the single row for the simulation
+                let simulationRow = document.createElement('tr');
+                resultsBody.appendChild(simulationRow);
     
-                // Update the chart
-                infectedChart.update();
-            }
-        };
+                // Get form data
+                const bpm = document.getElementById('bpm').value;
+                const population = document.getElementById('population').value;
     
-        eventSource.onerror = function (error) {
-            console.error('Error with SSE:', error);
-            eventSource.close();
-        };
+                // Define and initialize the EventSource
+                const eventSource = new EventSource(`/run_simulation?bpm=${bpm}&population=${population}`);
+    
+                // Listen for messages from the server
+                eventSource.onmessage = function (event) {
+                    if (event.data === '{"message": "Simulation completed"}') {
+                        // Close the connection when simulation is complete
+                        eventSource.close();
+                        console.log('Simulation completed.');
+                    } else {
+                        // Parse the data and update the table
+                        const data = JSON.parse(event.data);
+    
+                        // Clear the current row and update it with the latest data
+                        simulationRow.innerHTML = `
+                            <td>${data.tick}</td>
+                            <td>${data.minutes}</td>
+                            <td>${data.hours}</td>
+                            <td>${data.days}</td>
+                            <td>${data.total_alive}</td>
+                            <td>${data.total_dead}</td>
+                            <td>${data.infected_count}</td>
+                        `;
+    
+                        // Update the chart with new data
+                        // infectedChart.options.scales.x.max = timeData.length;  // Automatically adjust the max value based on the data length
+                        infectedChart.data.labels.push(data.tick); // Add the current tick as a label
+                        infectedChart.data.datasets[0].data.push(data.total_alive); // Add the infected count
+                        infectedChart.update(); // Update the chart to reflect the new data
+                    }
+                };
+    
+                // Handle errors (optional)
+                eventSource.onerror = function (error) {
+                    console.error('Error with SSE:', error);
+                    eventSource.close();
+                };
+            });
+        } else {
+            console.error("Canvas element not found.");
+        }
     });
     </script>
 
