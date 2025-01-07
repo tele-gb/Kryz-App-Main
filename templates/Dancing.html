@@ -39,9 +39,19 @@
     </table>
 
    
-    <canvas id="infectedChart" width="300" height="200"></canvas>
+    <canvas id="infectedChart" width="200" height="50"></canvas>
 </div>
 
+<script>
+//Reset the chart
+function resetChart(chart) {
+    chart.data.labels = []; // Clear x-axis labels
+    chart.data.datasets.forEach(dataset => {
+        dataset.data = []; // Clear dataset
+    });
+    chart.update(); // Update the chart to reflect changes
+}
+</script>
 
 
 <script>
@@ -62,18 +72,28 @@
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: false,
+                        borderWidth:2
+
                     }]
                 },
                 options: {
                     responsive: true,
+                    mmaintainAspectRatio: false,
                     scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
+                            x: {
+                            title: {
+                                display: true,
+                                text: 'Tick'
+                            },
+                            beginAtZero: true, // Ensure the x-axis starts at 0
+                            ticks: {
+                                autoSkip: false // Prevent skipping of x-axis labels
+                            }
                         },
                         y: {
-                            beginAtZero: false
-                        }
+                            beginAtZero: true
+                        },
+
                     }
                 }
             });
@@ -87,8 +107,10 @@
     
                 // Clear the results table for a new simulation
                 resultsBody.innerHTML = '';
-                infectedChart.data.datasets[0].data = []; 
-    
+                
+                resetChart(infectedChart);
+
+
                 // Create or update the single row for the simulation
                 let simulationRow = document.createElement('tr');
                 resultsBody.appendChild(simulationRow);
@@ -123,8 +145,11 @@
     
                         // Update the chart with new data
                         // infectedChart.options.scales.x.max = timeData.length;  // Automatically adjust the max value based on the data length
-                        infectedChart.data.labels.push(data.tick); // Add the current tick as a label
-                        infectedChart.data.datasets[0].data.push(data.total_alive); // Add the infected count
+                        infectedChart.data.labels.push(data.minutes); // Add the current tick as a label
+                        infectedChart.data.datasets[0].data.push(data.total_dead); // Add the infected count
+
+                        // Dynamically adjust the x-axis if necessary
+                        // infectedChart.options.scales.x.max = infectedChart.data.labels.length; // Ensure x-axis grows with data
                         infectedChart.update(); // Update the chart to reflect the new data
                     }
                 };
