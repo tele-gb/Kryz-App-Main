@@ -306,7 +306,9 @@ def run_simulation():
                 'days':days,
                 'total_alive': total_alive,
                 'total_dead': total_dead,
-                'infected_count': total_infected
+                'infected_count': total_infected,
+                'new_infected':new_infected,
+                'new_dead':died_this_tick
             }
             # print(data)
             

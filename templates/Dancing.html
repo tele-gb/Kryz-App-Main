@@ -31,6 +31,8 @@
                 <th>Total Alive</th>
                 <th>Total Dead</th>
                 <th>Infected Count</th>
+                <th>New Infected</th>
+                <th>New Dead</th>
             </tr>
         </thead>
         <tbody id="results-body">
@@ -67,10 +69,28 @@ function resetChart(chart) {
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Infected',
+                        label: 'Total Alive',
                         data: [],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: '#36A2EB',
+                        backgroundColor: '#9BD0F5',
+                        fill: false,
+                        borderWidth:2
+
+                    },
+                    {
+                        label: 'Newly Infected',
+                        data: [],
+                        borderColor: '#FF6384',
+                        backgroundColor: '#FFB1C1',
+                        fill: false,
+                        borderWidth:2
+
+                    },
+                    {
+                        label: 'Newly Dead',
+                        data: [],
+                        borderColor: '#5b2c6f',
+                        backgroundColor: '#bb8fce',
                         fill: false,
                         borderWidth:2
 
@@ -141,13 +161,16 @@ function resetChart(chart) {
                             <td>${data.total_alive}</td>
                             <td>${data.total_dead}</td>
                             <td>${data.infected_count}</td>
+                            <td>${data.new_infected}</td>
+                            <td>${data.new_dead}</td>
                         `;
     
                         // Update the chart with new data
                         // infectedChart.options.scales.x.max = timeData.length;  // Automatically adjust the max value based on the data length
                         infectedChart.data.labels.push(data.minutes); // Add the current tick as a label
-                        infectedChart.data.datasets[0].data.push(data.total_dead); // Add the infected count
-
+                        infectedChart.data.datasets[0].data.push(data.total_alive); // Add the infected count
+                        infectedChart.data.datasets[1].data.push(data.new_infected);
+                        infectedChart.data.datasets[2].data.push(data.new_dead);
                         // Dynamically adjust the x-axis if necessary
                         // infectedChart.options.scales.x.max = infectedChart.data.labels.length; // Ensure x-axis grows with data
                         infectedChart.update(); // Update the chart to reflect the new data
