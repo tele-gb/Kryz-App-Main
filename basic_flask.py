@@ -326,7 +326,7 @@ def run_simulation():
             print(len(infected_calories))
             
             # Add a sleep if you want the simulation to update at intervals
-            time.sleep(0.06)
+            time.sleep(0.5)
     
         # Once the simulation ends, yield a message to indicate completion
         yield "data: {\"message\": \"Simulation completed\"}\n\n"
