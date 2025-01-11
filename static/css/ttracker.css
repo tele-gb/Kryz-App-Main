@@ -12,6 +12,20 @@
     margin-top: 10px;
 }
 
+/* Style the form elements */
+#simulation-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #f2f2f2;
+}
+
+#simulation-form label {
+    display: block;
+    margin-top: 10px;
+}
+
 #taway-form input {
     width: 100%;
     padding: 8px;
@@ -20,8 +34,16 @@
     border-radius: 4px;
 }
 
+t#simulation-form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 #taway-form button {
-    background-color: #007bff;
+    background-color: #ffffff;
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -32,6 +54,20 @@
 #taway-form button:hover {
     background-color: #0056b3;
 }
+
+#simulation-form button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#simulation-form button:hover {
+    background-color: #0056b3;
+}
+    
     
     
     

@@ -3,22 +3,24 @@
 
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
 
-<div class="jumbotron">
-    <!-- <img class="image image-contain" src="'/static/just5klogo.png" /> -->
+<div class="jumbotron"  style="background-color: rgb(27, 20, 20);">
+
     <div class="stravalogo" >
-         <img height="500">
+         <img height="100">
 
 
 
-    </div>
+    </div> 
 </div>
 
 <!-- Content outside of Jumbotron -->
-<div class="container">
+<div class="container text-center" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <div class="row">
         <div class="col-md-12">
-            <h2>Click here to authorize with strava</h2>
-            <a href="{{ authorize_url }}" style="font-size:300%;color:#0000FF;" >Authorize with Strava</a> 
+            <h2>Click here to authorize with Strava</h2>
+            <a href="{{ authorize_url }}" style="font-size: 200%; color: #0000FF; font-family: Arial, sans-serif;">
+                Authorize with Strava
+            </a>
         </div>
     </div>
 </div>
