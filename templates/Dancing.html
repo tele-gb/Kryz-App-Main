@@ -1,0 +1,193 @@
+{% extends "base.html"%}
+{% block content %}
+
+<head>    <link rel="stylesheet" type="text/css" href="static/css/ttracker.css"> </head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<div class = 'jumbotron'>
+    <h1>Infectious Dancing Simulator</h1>
+
+    <form id="simulation-form" method="POST">
+        <label for="bpm">BPM:</label>
+        <input type="number" id="bpm" name="bpm" value="120" min="60" max="240" required><br>
+
+        <label for="population">Initial Population:</label>
+        <input type="number" id="population" name="population" value="50" min="10" max="100000" required><br>
+
+        <button type="submit">Run Simulation</button>
+</div>
+
+<div id="results">
+    <h2>Simulation Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tick</th>
+                <th>Minutes</th>
+                <th>Hours</th>
+                <th>Days</th>
+                <th>Total Alive</th>
+                <th>Total Dead</th>
+                <th>Infected Count</th>
+                <th>New Infected</th>
+                <th>New Dead</th>
+            </tr>
+        </thead>
+        <tbody id="results-body">
+            <!-- Rows are dynamically added here -->
+        </tbody>
+    </table>
+
+   
+    <canvas id="infectedChart" width="200" height="50"></canvas>
+</div>
+
+<script>
+//Reset the chart
+function resetChart(chart) {
+    chart.data.labels = []; // Clear x-axis labels
+    chart.data.datasets.forEach(dataset => {
+        dataset.data = []; // Clear dataset
+    });
+    chart.update(); // Update the chart to reflect changes
+}
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get the canvas context for the chart
+        const canvas = document.getElementById('infectedChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');  // Access the canvas context
+    
+            // Create the chart instance
+            const infectedChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Total Alive',
+                        data: [],
+                        borderColor: '#36A2EB',
+                        backgroundColor: '#9BD0F5',
+                        fill: false,
+                        borderWidth:2
+
+                    },
+                    {
+                        label: 'Newly Infected',
+                        data: [],
+                        borderColor: '#FF6384',
+                        backgroundColor: '#FFB1C1',
+                        fill: false,
+                        borderWidth:2
+
+                    },
+                    {
+                        label: 'Newly Dead',
+                        data: [],
+                        borderColor: '#5b2c6f',
+                        backgroundColor: '#bb8fce',
+                        fill: false,
+                        borderWidth:2
+
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    mmaintainAspectRatio: false,
+                    scales: {
+                            x: {
+                            title: {
+                                display: true,
+                                text: 'Tick'
+                            },
+                            beginAtZero: true, // Ensure the x-axis starts at 0
+                            ticks: {
+                                autoSkip: false // Prevent skipping of x-axis labels
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        },
+
+                    }
+                }
+            });
+    
+            // Handle the form submission
+            const form = document.getElementById('simulation-form');
+            const resultsBody = document.getElementById('results-body');
+    
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
+    
+                // Clear the results table for a new simulation
+                resultsBody.innerHTML = '';
+                
+                resetChart(infectedChart);
+
+
+                // Create or update the single row for the simulation
+                let simulationRow = document.createElement('tr');
+                resultsBody.appendChild(simulationRow);
+    
+                // Get form data
+                const bpm = document.getElementById('bpm').value;
+                const population = document.getElementById('population').value;
+    
+                // Define and initialize the EventSource
+                const eventSource = new EventSource(`/run_simulation?bpm=${bpm}&population=${population}`);
+    
+                // Listen for messages from the server
+                eventSource.onmessage = function (event) {
+                    if (event.data === '{"message": "Simulation completed"}') {
+                        // Close the connection when simulation is complete
+                        eventSource.close();
+                        console.log('Simulation completed.');
+                    } else {
+                        // Parse the data and update the table
+                        const data = JSON.parse(event.data);
+    
+                        // Clear the current row and update it with the latest data
+                        simulationRow.innerHTML = `
+                            <td>${data.tick}</td>
+                            <td>${data.minutes}</td>
+                            <td>${data.hours}</td>
+                            <td>${data.days}</td>
+                            <td>${data.total_alive}</td>
+                            <td>${data.total_dead}</td>
+                            <td>${data.infected_count}</td>
+                            <td>${data.new_infected}</td>
+                            <td>${data.new_dead}</td>
+                        `;
+    
+                        // Update the chart with new data
+                        // infectedChart.options.scales.x.max = timeData.length;  // Automatically adjust the max value based on the data length
+                        infectedChart.data.labels.push(data.minutes); // Add the current tick as a label
+                        infectedChart.data.datasets[0].data.push(data.total_alive); // Add the infected count
+                        infectedChart.data.datasets[1].data.push(data.new_infected);
+                        infectedChart.data.datasets[2].data.push(data.new_dead);
+                        // Dynamically adjust the x-axis if necessary
+                        // infectedChart.options.scales.x.max = infectedChart.data.labels.length; // Ensure x-axis grows with data
+                        infectedChart.update(); // Update the chart to reflect the new data
+                    }
+                };
+    
+                // Handle errors (optional)
+                eventSource.onerror = function (error) {
+                    console.error('Error with SSE:', error);
+                    eventSource.close();
+                };
+            });
+        } else {
+            console.error("Canvas element not found.");
+        }
+    });
+    </script>
+
+
+{% endblock %}

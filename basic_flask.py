@@ -21,7 +21,11 @@ from guitar import Guitar
 from Strava_Stats import StravaStats
 import fretboard  
 import sqlite3
-
+import time
+from Dancing_Class import DancingGame
+import json
+from flask import Flask, Response, request, jsonify
+import math
 # from IPython.display import SVG, display
 
 
@@ -233,7 +237,107 @@ def ttracker():
 
     return render_template('Takeaway.html', records=records,totalspend=totalspend)
 
+#-------------------------------------------------------------------------#
+#----------------Dancing Game---------------------------------------------#
 
+
+@app.route('/dancing_simulator')
+def dancing_simulator():
+    return render_template('Dancing.html')
+
+@app.route('/run_simulation', methods=['POST', 'GET'])
+def run_simulation():
+    # Get bpm and population from request data
+    bpm = int(request.args.get('bpm', 120))  # Default to 120 if not provided
+    population = int(request.args.get('population', 100))  # Default to 100 if not provided
+
+    
+    # Initialize the simulation
+    dg = DancingGame(bpm, population)
+    
+    # Initialize infected_calories properly
+    infected_calories = dg.create_list()
+    print(f"Infected calories initialized: {infected_calories}")  # Log for debugging
+    
+    total_infected = dg.start_infected
+    remaining_pop = dg.population - dg.start_infected
+    total_dead = 0
+    total_alive = dg.population
+    tick = dg.tick
+
+
+    # Initialize the response to stream data back to the client
+    def generate():
+        nonlocal infected_calories, total_infected, remaining_pop, total_dead, total_alive, tick
+        
+        while len(infected_calories) > 0:
+            tick += 1
+            new_infected = 0
+            died_this_tick = 0
+            minutes=0
+            hours=0
+            day=0
+            
+            adjusted_infection_rate, adjusted_reduction, adjusted_infection_period = dg.adjust_rates()
+            
+            infected_calories = dg.cal_reduction(infected_calories,adjusted_reduction)
+
+            died_this_tick, infected_calories = dg.remove_dead(infected_calories)
+            
+            new_infected = dg.new_infections(tick, adjusted_infection_period, remaining_pop, 
+                                              
+                                              infected_calories)
+            
+            # Update total counters
+            total_infected += new_infected
+            remaining_pop = max(dg.population - total_infected, 0)
+            total_dead += died_this_tick
+            total_alive = dg.population - total_dead
+            # print(total_alive)
+            minutes=tick*5
+            hours=math.floor((tick*5)/60)
+            days=math.floor(((tick*5)/60)/24)
+            print(died_this_tick,new_infected)
+
+
+            # Prepare the data to be sent to the client as SSE
+            data = {
+                'tick': tick,
+                'minutes':minutes,
+                'hours':hours,
+                'days':days,
+                'total_alive': total_alive,
+                'total_dead': total_dead,
+                'infected_count': total_infected,
+                'new_infected':new_infected,
+                'new_dead':died_this_tick
+            }
+            # print(data)
+            
+            try:
+                json_data = json.dumps(data)  # Try serializing the data
+                print("Serialized JSON:", json_data)  # Print the serialized JSON
+            except Exception as e:
+                print(f"Error serializing JSON: {e}")
+                json_data = "{}"  # If serialization fails, send an empty object to avoid breaking the SSE
+        
+
+
+            # Yield the response in the correct SSE format
+            yield f"data: {json_data}\n\n"
+            print(len(infected_calories))
+            
+            # Add a sleep if you want the simulation to update at intervals
+            time.sleep(0.5)
+    
+        # Once the simulation ends, yield a message to indicate completion
+        yield "data: {\"message\": \"Simulation completed\"}\n\n"
+
+    # Return the streaming response
+    return Response(generate(), mimetype='text/event-stream')
+print(Response)
+
+#define some globel variable
 
 @app.errorhandler(404)
 def page_not_found(e):
