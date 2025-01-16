@@ -67,18 +67,36 @@ def lastruns():
 
     code = request.args.get("code")
     stuff = request.view_args.items
+    if not code:
+        return "Authorization code missing!", 400
+    
     print(code)
     print(stuff)
+    
     client = Client()
     access_token = client.exchange_code_for_token(
                                                     client_id=app.config["CLIENT_ID"],
                                                     client_secret=app.config["CLIENT_SECRET"],
                                                     code=code,
                                                 )
+    # Store tokens and expiry in the session
+    session['access_token'] = access_token['access_token']
+    session['refresh_token'] = access_token['refresh_token']
+    session['expires_at'] = access_token['expires_at']    
+
+
     # Probably here you'd want to store this somewhere -- e.g. in a database.
     strava_athlete = client.get_athlete()
+    print(strava_athlete)
+    
     # print(access_token['access_token'])
     session['sac'] = access_token['access_token']
+    print(access_token['access_token'])
+    print(access_token['refresh_token'])
+    expirestime=access_token['expires_at']
+    print(expirestime)
+
+
 
 
     return render_template('lastruns.html',code=code,athlete=strava_athlete,access_token=access_token,)
@@ -86,18 +104,57 @@ def lastruns():
 
 strava=StravaStats()
 
+#need to add this to strava_statsh;
+def get_strava_client():
+    """Initialize Strava client with a valid access token."""
+    client = Client()
+    access_token = session.get('access_token')
+    refresh_token = session.get('refresh_token')
+    expires_at = session.get('expires_at')
+
+    if not access_token or not refresh_token or not expires_at:
+        raise ValueError("Tokens are missing from session!")
+
+    # Check if the token is expired
+    if datetime.utcnow().timestamp() > expires_at:
+        # Refresh the token
+        refresh_response = client.refresh_access_token(
+            client_id=app.config["CLIENT_ID"],
+            client_secret=app.config["CLIENT_SECRET"],
+            refresh_token=refresh_token
+        )
+        # Update session with new tokens
+        session['access_token'] = refresh_response['access_token']
+        session['refresh_token'] = refresh_response['refresh_token']
+        session['expires_at'] = refresh_response['expires_at']
+        access_token = refresh_response['access_token']
+
+    client.access_token = access_token
+    return client
+
 @app.route('/lastruns2')
 def lastruns2():
-    strava_access_token = session.get('sac') 
-    header2 = {'Authorization': 'Bearer ' + strava_access_token}
 
-    print(f'Access Token: {strava_access_token}')
+    client = get_strava_client()
+    print(client)
+    activities = client.get_activities() 
+    strava_access_token = session.get('sac') 
+    header2 = {'Authorization': 'Bearer ' + session['access_token'] }
+    print(header2)
+
+    print(f'Access Token: {session.get('access_token')}')
     print(f'Header: {header2}')
  
     actlist = strava.all_activities(header2)
+    print(len(actlist))
     testlist = strava.activities_list(actlist,5000,50)
+    print(len(testlist))
     testdf = strava.multi_activities(50,testlist,header2)
     testdf2 = strava.rolling_df(testdf,3)
+
+    if testdf2.empty:
+        return render_template('lastrunserror.html', error="No data available for analysis.")
+
 
     strava.load_to_sql(testdf)
 

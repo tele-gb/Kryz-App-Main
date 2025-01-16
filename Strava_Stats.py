@@ -41,7 +41,9 @@ class StravaStats:
     #     strava_access_token = self.authenticate(id,secret)
     #     client = StravaIO(access_token=strava_access_token)
     #     header = {'Authorization': 'Bearer ' + strava_access_token['access_token']}
-    #     return header     
+    #     return header 
+    # 
+  
     
     def all_activities(self,header):
         all_activities_list = []
