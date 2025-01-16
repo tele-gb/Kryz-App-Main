@@ -4,15 +4,17 @@
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
 <div class = 'jumbotron'>
 
-    <h2>Your most recent run was on {{latest_day}}</h2>
-    <h2>Your most recent time was: {{latest_time}}</h2>
-    <h2>Your average time was: {{mean_of_runs}}</h2>
+    <h2 id="header">Your most recent run was on {{latest_day}}</h2>
+    <h2 id="header">Your most recent time was: {{latest_time}}</h2>
+    <h2 id="header">Your average time was: {{mean_of_runs}}</h2>
 
     {% if current_time_delta < 0 %}
-    <h2> Your last run was {{ current_time_delta }} seconds slower than your average</h2>
+    <h2 id="header"> Your last run was {{ current_time_delta }} seconds slower than your average</h2>
     {% else %}
-    <h2> Your last run was {{ current_time_delta }} seconds faster than your average</h2>
+    <h2 id="header"> Your last run was {{ current_time_delta }} seconds faster than your average</h2>
     {% endif %}
+
+    
 
 </div>
 
