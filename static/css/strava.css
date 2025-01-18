@@ -31,6 +31,13 @@ h1 {
     text-align: left;
 }
 
+#authorise {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    color: #0704ce;
+    text-align: center;
+}
+
 h2 {
     font-family: Arial, sans-serif;
     font-size: 24px;
@@ -76,3 +83,39 @@ h3 {
     tr:hover td {
         background-color: #eaeaea; /* Highlight row on hover */
     }
+
+
+/*Guitar Form*/
+#strava-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #b9aeae;
+}
+
+#strava-form label {
+    display: block;
+    margin-top: 10px;
+}
+
+#strava-form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#strava-form button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#strava-form button:hover {
+    background-color: #0056b3;
+}

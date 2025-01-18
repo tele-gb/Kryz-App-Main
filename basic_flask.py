@@ -51,19 +51,23 @@ def home():
 
 #-------------------------------------------------------------------------#
 #----------------STRAVA---------------------------------------------------#
+strava=StravaStats()
+dist_types = strava.distance_dict
+print(dist_types)
 
-@app.route('/strava')
-def strava():
+
+@app.route('/stravamain')
+def stravamain():
     c = Client()
     url = c.authorization_url(client_id=app.config["CLIENT_ID"],
-                            redirect_uri=url_for('.lastruns',_external=True )
+                            redirect_uri=url_for('.lastruns3',_external=True )
                             ,scope=['read_all','profile:read_all','activity:read_all'],
                             approval_prompt="force")
     print(url)
     return render_template('stravamain.html',authorize_url=url)
 
-@app.route('/lastruns')
-def lastruns():
+@app.route('/lastruns3')
+def lastruns3():
 
     code = request.args.get("code")
     stuff = request.view_args.items
@@ -72,6 +76,8 @@ def lastruns():
     
     print(code)
     print(stuff)
+
+    # dist_types = request.form.get('dist_types')
     
     client = Client()
     access_token = client.exchange_code_for_token(
@@ -97,12 +103,12 @@ def lastruns():
     print(expirestime)
 
 
+    print("Distance dictionary:", strava.distance_dict)
+
+    return render_template('lastruns3.html',code=code,athlete=strava_athlete,access_token=access_token,
+                                            dist_types=strava.distance_dict)
 
 
-    return render_template('lastruns.html',code=code,athlete=strava_athlete,access_token=access_token,)
-
-
-strava=StravaStats()
 
 #need to add this to strava_statsh;
 def get_strava_client():

@@ -31,6 +31,13 @@ class StravaStats:
         self.request_page_num = 1
         self.all_activities_list = []
         self.activitiesbyid_url = "https://www.strava.com/api/v3/activities/{}"
+
+        self.distance_dict = {
+            '5k Run':5000,
+            '10k Run':10000,
+            'Half Marathon': 21100,
+            'Full Marathon':42195
+        }
                 
     # def authenticate(self,id,secret):
     #     token = strava_oauth2(client_id=id, client_secret=secret)

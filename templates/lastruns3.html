@@ -1,0 +1,49 @@
+<!-- On this page we'll have a form for users to select the run distance, and a refresh -->
+
+{% extends "base.html"%}
+{% block content %}
+
+<head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
+<div class = 'jumbotron'>
+    <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a>
+
+    {%if table%}
+
+        <h2 id="header">Your most recent run was on {{latest_day}}</h2>
+        <h2 id="header">Your most recent time was: {{latest_time}}</h2>
+        <h2 id="header">Your average time was: {{mean_of_runs}}</h2>
+
+        {% if current_time_delta < 0 %}
+        <h2 id="header"> Your last run was {{ current_time_delta }} seconds slower than your average</h2>
+        {% else %}
+        <h2 id="header"> Your last run was {{ current_time_delta }} seconds faster than your average</h2>
+        {% endif %}
+    {% endif %}
+</div>
+
+<h1>Query Settings</h1>
+<form method="POST" action="{{ url_for('guitarscale') }}" id="strava-form">
+
+    <label for="dist_types">Select Distance:</label>
+    <select id="dist_types" name="dist_types" required>
+        {% for key, value in dist_types.items() %}
+            <option value="{{ key }}">{{ key }}</option>
+        {% endfor %}
+    </select>
+
+
+    <input type="submit" value="Submit">
+</form>
+
+<!-- i PUT THIS OUTSIDE OF THE JUMBOTRON -->
+{%if table%}
+    {% for table in tables %}
+    {{titles[loop.index]}}
+    {{ table|safe }}
+    {% endfor %}
+{% else %}
+    <p>No activities to display. Submit a query to see results.</p>
+{% endif %}
+
+
+{% endblock %}

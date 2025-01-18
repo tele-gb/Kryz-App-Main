@@ -4,6 +4,8 @@
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
 <div class = 'jumbotron'>
 
+    <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a>
+
     <h2 id="header">Your most recent run was on {{latest_day}}</h2>
     <h2 id="header">Your most recent time was: {{latest_time}}</h2>
     <h2 id="header">Your average time was: {{mean_of_runs}}</h2>
