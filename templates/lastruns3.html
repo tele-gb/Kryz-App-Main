@@ -5,7 +5,7 @@
 
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
 <div class = 'jumbotron'>
-    <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a>
+    <!-- <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a> -->
 
     {%if table%}
 
@@ -19,21 +19,21 @@
         <h2 id="header"> Your last run was {{ current_time_delta }} seconds faster than your average</h2>
         {% endif %}
     {% endif %}
-</div>
 
 <h1>Query Settings</h1>
-<form method="POST" action="{{ url_for('guitarscale') }}" id="strava-form">
+<form method="POST" action="{{url_for('lastruns2')}}" id="strava-form">
 
     <label for="dist_types">Select Distance:</label>
     <select id="dist_types" name="dist_types" required>
         {% for key, value in dist_types.items() %}
-            <option value="{{ key }}">{{ key }}</option>
+            <option value="{{ value }}">{{ key }}</option>
         {% endfor %}
     </select>
 
 
     <input type="submit" value="Submit">
 </form>
+</div>
 
 <!-- i PUT THIS OUTSIDE OF THE JUMBOTRON -->
 {%if table%}

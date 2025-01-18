@@ -35,8 +35,8 @@ class StravaStats:
         self.distance_dict = {
             '5k Run':5000,
             '10k Run':10000,
-            'Half Marathon': 21100,
-            'Full Marathon':42195
+            'Half Marathon': 21000,
+            'Full Marathon':42000
         }
                 
     # def authenticate(self,id,secret):
@@ -54,6 +54,7 @@ class StravaStats:
     
     def all_activities(self,header):
         all_activities_list = []
+        self.request_page_num = 1
         
         while True:
             param = {'per_page': 200, 'page': self.request_page_num}

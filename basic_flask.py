@@ -138,22 +138,38 @@ def get_strava_client():
     client.access_token = access_token
     return client
 
-@app.route('/lastruns2')
+@app.route('/lastruns2', methods=['GET', 'POST'])
 def lastruns2():
 
+
+    print(request.form)  # To print all form data
+    # Get the selected distance from the form
+    distance_length = request.form.get('dist_types')
+    print(f"Selected Distance: {distance_length}")
+
+    # Check if value was pulled successfully
+    if not distance_length:
+        print("No distance selected or value is empty.")
+    else:
+        distance_length = int(distance_length)  # Convert to integer if necessary
+        print(f"Converted Distance: {distance_length}")
+
+    print(request.form)  # To print all form data
     client = get_strava_client()
     print(client)
-    activities = client.get_activities() 
-    strava_access_token = session.get('sac') 
+    # activities = client.get_activities() 
+    # strava_access_token = session.get('sac') 
     header2 = {'Authorization': 'Bearer ' + session['access_token'] }
     print(header2)
 
     print(f'Access Token: {session.get('access_token')}')
     print(f'Header: {header2}')
- 
+
+    print(distance_length)
+
     actlist = strava.all_activities(header2)
     print(len(actlist))
-    testlist = strava.activities_list(actlist,5000,50)
+    testlist = strava.activities_list(actlist,distance_length,50)
     print(len(testlist))
     testdf = strava.multi_activities(50,testlist,header2)
     testdf2 = strava.rolling_df(testdf,3)
@@ -174,19 +190,21 @@ def lastruns2():
     latest_time=strava.latest_time(testdf2)
 
     current_time_delta = abs(round(strava.convert_to_seconds(latest_time)-strava.convert_to_seconds(mean_of_runs),2))
-   
+
     return render_template('lastruns2.html',
-                           mean_of_runs=mean_of_runs,
-                           median_of_runs=median_of_runs,
-                           fastest_time=fastest_time,
-                           fastest_day=fastest_day,
-                           slowest_time=slowest_time,
-                           slowest_day=slowest_day,
-                           latest_day=latest_day,
-                           latest_time=latest_time,
-                           current_time_delta=current_time_delta,
-                           tables=[testdf2.to_html(classes='data')], 
-                           titles=testdf2.columns.values)
+                        mean_of_runs=mean_of_runs,
+                        median_of_runs=median_of_runs,
+                        fastest_time=fastest_time,
+                        fastest_day=fastest_day,
+                        slowest_time=slowest_time,
+                        slowest_day=slowest_day,
+                        latest_day=latest_day,
+                        latest_time=latest_time,
+                        current_time_delta=current_time_delta,
+                        tables=[testdf2.to_html(classes='data')], 
+                        titles=testdf2.columns.values,
+                        dist_types=strava.distance_dict,
+                        distance_length=distance_length)
 
 #-------------------------------------------------------------------------#
 #----------------DEBT CALC------------------------------------------------#
