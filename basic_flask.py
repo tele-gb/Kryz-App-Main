@@ -60,53 +60,48 @@ print(dist_types)
 def stravamain():
     c = Client()
     url = c.authorization_url(client_id=app.config["CLIENT_ID"],
-                            redirect_uri=url_for('.lastruns3',_external=True )
+                            redirect_uri=url_for('.lastruns2',_external=True )
                             ,scope=['read_all','profile:read_all','activity:read_all'],
                             approval_prompt="force")
     print(url)
     return render_template('stravamain.html',authorize_url=url)
 
-@app.route('/lastruns3')
-def lastruns3():
+# @app.route('/lastruns3')
+# def lastruns3():
 
-    code = request.args.get("code")
-    stuff = request.view_args.items
-    if not code:
-        return "Authorization code missing!", 400
+#     code = request.args.get("code")
+#     stuff = request.view_args.items
+#     if not code:
+#         return "Authorization code missing!", 400
     
-    print(code)
-    print(stuff)
+#     print(code)
+#     print(stuff)
 
-    # dist_types = request.form.get('dist_types')
+#     # dist_types = request.form.get('dist_types')
     
-    client = Client()
-    access_token = client.exchange_code_for_token(
-                                                    client_id=app.config["CLIENT_ID"],
-                                                    client_secret=app.config["CLIENT_SECRET"],
-                                                    code=code,
-                                                )
-    # Store tokens and expiry in the session
-    session['access_token'] = access_token['access_token']
-    session['refresh_token'] = access_token['refresh_token']
-    session['expires_at'] = access_token['expires_at']    
+#     client = Client()
+#     access_token = client.exchange_code_for_token(
+#                                                     client_id=app.config["CLIENT_ID"],
+#                                                     client_secret=app.config["CLIENT_SECRET"],
+#                                                     code=code,
+#                                                 )
+#     # Store tokens and expiry in the session
+#     session['access_token'] = access_token['access_token']
+#     session['refresh_token'] = access_token['refresh_token']
+#     session['expires_at'] = access_token['expires_at']    
 
 
-    # Probably here you'd want to store this somewhere -- e.g. in a database.
-    strava_athlete = client.get_athlete()
-    print(strava_athlete)
+#     # Probably here you'd want to store this somewhere -- e.g. in a database.
+#     strava_athlete = client.get_athlete()
+#     print(strava_athlete)
     
-    # print(access_token['access_token'])
-    session['sac'] = access_token['access_token']
-    print(access_token['access_token'])
-    print(access_token['refresh_token'])
-    expirestime=access_token['expires_at']
-    print(expirestime)
 
 
-    print("Distance dictionary:", strava.distance_dict)
 
-    return render_template('lastruns3.html',code=code,athlete=strava_athlete,access_token=access_token,
-                                            dist_types=strava.distance_dict)
+#     print("Distance dictionary:", strava.distance_dict)
+
+#     return render_template('lastruns3.html',code=code,athlete=strava_athlete,access_token=access_token,
+#                                             dist_types=strava.distance_dict)
 
 
 
@@ -140,71 +135,97 @@ def get_strava_client():
 
 @app.route('/lastruns2', methods=['GET', 'POST'])
 def lastruns2():
+    if request.method == 'GET':
+        # Handle Strava Authorization
+        code = request.args.get("code")
+        if not code:
+            return "Authorization code missing!", 400
+        
+        print(f"Authorization Code: {code}")
+        
+        client = Client()
+        try:
+            access_token = client.exchange_code_for_token(
+                client_id=app.config["CLIENT_ID"],
+                client_secret=app.config["CLIENT_SECRET"],
+                code=code
+            )
+        except Exception as e:
+            return f"Error exchanging code for token: {e}", 500
 
+        # Store tokens and expiry in session
+        session['access_token'] = access_token['access_token']
+        session['refresh_token'] = access_token['refresh_token']
+        session['expires_at'] = access_token['expires_at']
 
-    print(request.form)  # To print all form data
-    # Get the selected distance from the form
-    distance_length = request.form.get('dist_types')
-    print(f"Selected Distance: {distance_length}")
+        # Fetch athlete details
+        strava_athlete = client.get_athlete()
+        print(f"Athlete: {strava_athlete}")
 
-    # Check if value was pulled successfully
-    if not distance_length:
-        print("No distance selected or value is empty.")
-    else:
-        distance_length = int(distance_length)  # Convert to integer if necessary
-        print(f"Converted Distance: {distance_length}")
+        # Render the page with distance selection
+        return render_template('lastruns2.html', 
+                               athlete=strava_athlete, 
+                               dist_types=strava.distance_dict)
+    
+    elif request.method == 'POST':
+        # Handle activity analysis
+        distance_length = request.form.get('dist_types')
+        if not distance_length:
+            return render_template('lastrunserror.html', error="No distance selected.")
+        
+        try:
+            distance_length = int(distance_length)
+        except ValueError:
+            return render_template('lastrunserror.html', error="Invalid distance value.")
 
-    print(request.form)  # To print all form data
-    client = get_strava_client()
-    print(client)
-    # activities = client.get_activities() 
-    # strava_access_token = session.get('sac') 
-    header2 = {'Authorization': 'Bearer ' + session['access_token'] }
-    print(header2)
+        print(f"Selected Distance: {distance_length}")
 
-    print(f'Access Token: {session.get('access_token')}')
-    print(f'Header: {header2}')
+        # Initialize Strava client
+        client = get_strava_client()
+        header2 = {'Authorization': 'Bearer ' + session['access_token']}
+        session['header2'] = header2
 
-    print(distance_length)
+        # Fetch activities and process them
+        try:
+            print("Processing selected activities")
+            actlist = strava.all_activities(header2)
+            testlist = strava.activities_list(actlist, distance_length, 50)
+            testdf = strava.multi_activities(50, testlist, header2)
+            testdf2 = strava.rolling_df(testdf, 3)
+            print(f"Activity List: {len(actlist)}, Testlist: {len(testlist)}, Testdf: {len(testdf)}, Testdf2: {len(testdf2)}")
+       
+        except Exception as e:
+            return render_template('lastrunserror.html', error=f"Error processing activities: {e}")
 
-    actlist = strava.all_activities(header2)
-    print(len(actlist))
-    testlist = strava.activities_list(actlist,distance_length,50)
-    print(len(testlist))
-    testdf = strava.multi_activities(50,testlist,header2)
-    testdf2 = strava.rolling_df(testdf,3)
+        if testdf2.empty:
+            return render_template('lastrunserror.html', error="No data available for analysis.")
 
-    if testdf2.empty:
-        return render_template('lastrunserror.html', error="No data available for analysis.")
+        # Perform analysis
+        mean_of_runs = strava.mean_run_time(testdf2)
+        median_of_runs = strava.median_run_time(testdf2)
+        fastest_time = strava.fastest_time(testdf2)
+        fastest_day = strava.fastest_day(testdf2)
+        slowest_time = strava.slowest_time(testdf2)
+        slowest_day = strava.slowest_day(testdf2)
+        latest_day = strava.latest_day(testdf2)
+        latest_time = strava.latest_time(testdf2)
+        current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
 
-
-    strava.load_to_sql(testdf)
-
-    mean_of_runs = strava.mean_run_time(testdf2)
-    median_of_runs = strava.median_run_time(testdf2)
-    fastest_time = strava.fastest_time(testdf2)
-    fastest_day = strava.fastest_day(testdf2)
-    slowest_time = strava.slowest_time(testdf2)
-    slowest_day = strava.slowest_day(testdf2)
-    latest_day=strava.latest_day(testdf2)
-    latest_time=strava.latest_time(testdf2)
-
-    current_time_delta = abs(round(strava.convert_to_seconds(latest_time)-strava.convert_to_seconds(mean_of_runs),2))
-
-    return render_template('lastruns2.html',
-                        mean_of_runs=mean_of_runs,
-                        median_of_runs=median_of_runs,
-                        fastest_time=fastest_time,
-                        fastest_day=fastest_day,
-                        slowest_time=slowest_time,
-                        slowest_day=slowest_day,
-                        latest_day=latest_day,
-                        latest_time=latest_time,
-                        current_time_delta=current_time_delta,
-                        tables=[testdf2.to_html(classes='data')], 
-                        titles=testdf2.columns.values,
-                        dist_types=strava.distance_dict,
-                        distance_length=distance_length)
+        # Render analysis results
+        return render_template('lastruns2.html',
+                               mean_of_runs=mean_of_runs,
+                               median_of_runs=median_of_runs,
+                               fastest_time=fastest_time,
+                               fastest_day=fastest_day,
+                               slowest_time=slowest_time,
+                               slowest_day=slowest_day,
+                               latest_day=latest_day,
+                               latest_time=latest_time,
+                               current_time_delta=current_time_delta,
+                               tables=[testdf2.to_html(classes='data')],
+                               titles=testdf2.columns.values,
+                               dist_types=strava.distance_dict,
+                               distance_length=distance_length)
 
 #-------------------------------------------------------------------------#
 #----------------DEBT CALC------------------------------------------------#

@@ -1,42 +1,50 @@
 {% extends "base.html"%}
 {% block content %}
-
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
 <div class = 'jumbotron'>
-    {%if table%}
+    <!-- <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a> -->
 
-        <h2 id="header">Your most recent run was on {{latest_day}}</h2>
-        <h2 id="header">Your most recent time was: {{latest_time}}</h2>
-        <h2 id="header">Your average time was: {{mean_of_runs}}</h2>
+    <div id="main-container">
+        <!-- Text Section -->
+        <div id="text-section">
+            {% if latest_day and latest_time and mean_of_runs and current_time_delta is not none %}
+                <h2 id="latest-day">Your most recent run was on {{ latest_day }}</h2>
+                <h2 id="latest-time">Your most recent time was: {{ latest_time }}</h2>
+                <h2 id="mean-of-runs">Your average time was: {{ mean_of_runs }}</h2>
 
-        {% if current_time_delta < 0 %}
-        <h2 id="header"> Your last run was {{ current_time_delta }} seconds slower than your average</h2>
-        {% else %}
-        <h2 id="header"> Your last run was {{ current_time_delta }} seconds faster than your average</h2>
-        {% endif %}
-    {% endif %}
-
-<h1>Query Settings</h1>
-<form method="POST" action="{{url_for('lastruns2')}}" id="strava-form">
-
-    <label for="dist_types">Select Distance:</label>
-    <select id="dist_types" name="dist_types" required>
-        {% for key, value in dist_types.items() %}
-            <option value="{{ value }}">{{ key }}</option>
-        {% endfor %}
-    </select>
+                {% if current_time_delta < 0 %}
+                    <h2 id="time-delta-slower">Your last run was {{ current_time_delta }} seconds slower than your average</h2>
+                {% else %}
+                    <h2 id="time-delta-faster">Your last run was {{ current_time_delta }} seconds faster than your average</h2>
+                {% endif %}
+            {% else %}
+                <!-- Hidden by default if no data -->
+                <div id="no-data-message">No data available yet.</div>
+            {% endif %}
+        </div>
+    </div>
 
 
-    <input type="submit" value="Submit">
-</form>
-
+        <!-- Query Box Section -->
+        <div id="form-section">
+            <h1 id="query-header">Query Settings</h1>
+            <form method="POST" action="{{ url_for('lastruns2') }}" id="strava-form">
+                <label for="dist_types">Select Distance:</label>
+                <select id="dist_types" name="dist_types" required>
+                    {% for key, value in dist_types.items() %}
+                        <option value="{{ value }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
 </div>
-
 <!-- i PUT THIS OUTSIDE OF THE JUMBOTRON -->
-{% for table in tables %}
-{{titles[loop.index]}}
-{{ table|safe }}
-{% endfor %}
 
-
+<div id="table-container">
+    {% for table in tables %}
+        <h3 id="table-title-{{ loop.index }}">{{ titles[loop.index0] }}</h3>
+        {{ table | safe }}
+    {% endfor %}
+</div>
 {% endblock %}

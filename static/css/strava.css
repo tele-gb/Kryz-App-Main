@@ -85,6 +85,7 @@ h3 {
     }
 
 
+
 /*Guitar Form*/
 #strava-form {
     max-width: 400px;
@@ -118,4 +119,53 @@ h3 {
 
 #strava-form button:hover {
     background-color: #0056b3;
+}
+
+#main-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px; /* Add space between sections */
+    margin-bottom: 20px; /* Space below the container */
+}
+
+/* Text Section */
+#text-section {
+    flex: 1;
+}
+
+#text-section h2 {
+    margin: 10px 0;
+}
+
+/* Form Section */
+#form-section {
+    flex: 1;
+    text-align: left;
+}
+
+/* Query Header */
+#query-header {
+    margin-bottom: 10px;
+}
+
+/* Table Data */
+#table-container {
+    margin-top: 20px;
+}
+
+#table-container h3 {
+    margin-bottom: 10px;
+}
+
+/* Hidden message */
+#no-data-message {
+    display: none; /* Hide this by default */
+}
+
+/* Example to display it when needed */
+#text-section .hidden {
+    display: block;
+    color: red;
+    font-style: italic;
 }
