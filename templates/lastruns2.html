@@ -8,6 +8,7 @@
         <!-- Text Section -->
         <div id="text-section">
             {% if latest_day and latest_time and mean_of_runs and current_time_delta is not none %}
+                <h1 id="statistics-title">Run Commentary</h1>
                 <h2 id="latest-day">Your most recent run was on {{ latest_day }}</h2>
                 <h2 id="latest-time">Your most recent time was: {{ latest_time }}</h2>
                 <h2 id="mean-of-runs">Your average time was: {{ mean_of_runs }}</h2>
@@ -22,7 +23,7 @@
                 <div id="no-data-message">No data available yet.</div>
             {% endif %}
         </div>
-    </div>
+
 
 
         <!-- Query Box Section -->
@@ -38,6 +39,7 @@
                 <input type="submit" value="Submit">
             </form>
         </div>
+    </div>
 </div>
 <!-- i PUT THIS OUTSIDE OF THE JUMBOTRON -->
 

@@ -38,6 +38,14 @@ h1 {
     text-align: center;
 }
 
+#statistics-title {
+    font-family: Arial, sans-serif;
+    font-size: 30px;
+    color: #020202;
+    text-align: center;
+    text-decoration: underline;
+}
+
 h2 {
     font-family: Arial, sans-serif;
     font-size: 24px;
@@ -55,9 +63,10 @@ h3 {
 
     /* Basic table styling */
     table {
-        width: 100%;
+        width: 60%;
         border-collapse: collapse; /* Makes sure table borders are collapsed */
         margin-top: 20px;
+        margin-right: 10px;
         font-family: Arial, sans-serif;
     }
 
@@ -132,16 +141,25 @@ h3 {
 /* Text Section */
 #text-section {
     flex: 1;
+    margin-right: 20px;
 }
 
 #text-section h2 {
     margin: 10px 0;
 }
 
+/* Example to display it when needed */
+#text-section .hidden {
+    display: block;
+    color: red;
+    font-style: italic;
+}
+
 /* Form Section */
 #form-section {
     flex: 1;
     text-align: left;
+    margin-left: 20px;
 }
 
 /* Query Header */
@@ -163,9 +181,3 @@ h3 {
     display: none; /* Hide this by default */
 }
 
-/* Example to display it when needed */
-#text-section .hidden {
-    display: block;
-    color: red;
-    font-style: italic;
-}
