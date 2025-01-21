@@ -1,6 +1,10 @@
 {% extends "base.html"%}
 {% block content %}
 <head>    <link rel="stylesheet" type="text/css" href="static/css/strava.css"> </head>
+
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.0.2/build/global/luxon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+
 <div class = 'jumbotron'>
     <!-- <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a> -->
 
@@ -49,4 +53,126 @@
         {{ table | safe }}
     {% endfor %}
 </div>
+
+<!-- Reset the chart -->
+<script>
+    //Reset the chart
+    function resetChart(chart) {
+        chart.data.labels = []; // Clear x-axis labels
+        chart.data.datasets.forEach(dataset => {
+            dataset.data = []; // Clear dataset
+        });
+        chart.update(); // Update the chart to reflect changes
+    }
+    </script>
+
+
+
+<div class="chart-container">
+    <canvas id="StravaChart"></canvas>
+</div>
+
+<style>
+  #StravaChart {
+      max-width: 800px; /* Set a maximum width */
+      height: 400px;    /* Set a fixed height */
+      margin: 0 auto;   /* Center the chart horizontally */
+  }
+
+  /* Ensure parent container doesn't stretch unexpectedly */
+  .chart-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+  }
+</style>
+
+<script>
+
+// Ensure this script runs after the canvas element exists
+document.addEventListener("DOMContentLoaded", () => {
+        // JSON data from Flask, properly serialized
+        const strava_chart_data = {{ strava_chart | safe }};
+
+    // Extract labels and datasets from the JSON
+    const labels = strava_chart_data.map(entry =>
+        new Date(entry.Date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    );
+    const bestTimes = strava_chart_data.map(entry => entry.Best_Time); // Replace with your key
+    const rollingMean = strava_chart_data.map(entry => entry.Rolling_Mean); // Replace with your key
+
+
+        // Initialize the chart
+        const ctx = document.getElementById("StravaChart").getContext("2d");
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Best Time',
+                        data: bestTimes,
+                        borderColor: '#36A2EB',
+                        backgroundColor: '#9BD0F5',
+                        fill: false,
+                        borderWidth: 2
+                    }
+                    // ,
+                    // {
+                    //     label: 'Rolling Mean',
+                    //     data: rollingMean,
+                    //     borderColor: '#FF6384',
+                    //     backgroundColor: '#FFB1C1',
+                    //     fill: false,
+                    //     borderWidth: 2
+                    // }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2, // Width to height ratio
+                // plugins: {
+                //     decimation: {
+                //         enabled: true,
+                //         algorithm: 'min-max',
+                //         samples: 500
+                //     }
+                // }
+                
+                scales: {
+                    x: {type: 'time', // Set the x-axis to handle time
+                        time: {
+                            parser: 'YYYY-MM-DD', // Parse the date format
+                            unit: 'day', // Unit to display (day, week, month, etc.)
+                            displayFormats: {
+                                day: 'MMM DD' // Format displayed on the axis (e.g., 'Jan 01')
+                                }
+                            },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 20
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Time (seconds)'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
+
+
 {% endblock %}

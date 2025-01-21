@@ -189,9 +189,13 @@ def lastruns2():
         try:
             print("Processing selected activities")
             actlist = strava.all_activities(header2)
-            testlist = strava.activities_list(actlist, distance_length, 50)
+            testlist = strava.activities_list(actlist, distance_length, 10)
             testdf = strava.multi_activities(50, testlist, header2)
             testdf2 = strava.rolling_df(testdf, 3)
+            strava_chart = testdf2.to_json(orient='records')
+
+
+            print(strava_chart)
             print(f"Activity List: {len(actlist)}, Testlist: {len(testlist)}, Testdf: {len(testdf)}, Testdf2: {len(testdf2)}")
        
         except Exception as e:
@@ -223,6 +227,7 @@ def lastruns2():
                                latest_time=latest_time,
                                current_time_delta=current_time_delta,
                                tables=[testdf2.to_html(classes='data')],
+                               strava_chart = strava_chart,
                                titles=testdf2.columns.values,
                                dist_types=strava.distance_dict,
                                distance_length=distance_length)
