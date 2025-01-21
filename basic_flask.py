@@ -189,7 +189,7 @@ def lastruns2():
         try:
             print("Processing selected activities")
             actlist = strava.all_activities(header2)
-            testlist = strava.activities_list(actlist, distance_length, 10)
+            testlist = strava.activities_list(actlist, distance_length, 150)
             testdf = strava.multi_activities(50, testlist, header2)
             testdf2 = strava.rolling_df(testdf, 3)
             strava_chart = testdf2.to_json(orient='records')
