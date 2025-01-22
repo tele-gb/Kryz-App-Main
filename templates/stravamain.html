@@ -5,7 +5,7 @@
 
 <div class="jumbotron"  style="background-color: rgb(27, 20, 20);">
     <div class="stravalogo" >
-         <img height="60">
+         <img height="40">
     </div> 
 </div>
 
@@ -18,7 +18,9 @@
                 Authorize with Strava
             </a>
         </div>
-        <div id="form-section">
+        <br>
+
+        <div id="form-section-main-page">
             <form method="POST" action="{{ url_for('lastruns2') }}" >
                 <button type="submit" name="action" value="get_test_data" id="test_data_pull">Get Test Data</button>
             </form>

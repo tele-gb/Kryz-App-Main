@@ -1,14 +1,16 @@
 /* Define a CSS class to set the background image */
 .stravalogo {
-    background-image: url('/static/just5klogo.png'); /* Path to your image */
-    /* background-position: center; */
-    background-size: cover;
+    background-image: url('/static/just5klogo_nbg.png'); /* Path to your image */
+    background-position: center;
+    background-size: contain;
     background-repeat: no-repeat;
+    /* align-self: center; */
+
 
     /* Styling the jumbotron to fill its container */
     width: 100%; /* Ensure full width */
     height: 75%; /* Allow dynamic height */
-    height: 500px; /* Set a minimum height */
+    height: 150px; /* Set a minimum height */
     /* border: 5px solid black; Optional border */
 }
 
@@ -45,6 +47,15 @@ h1 {
     text-align: center;
     text-decoration: underline;
 }
+
+#form-section-main-page  {
+    display: flex;         /* Enable flexbox layout */
+
+    justify-content: center; /* Center horizontally */
+    /* align-items: center;   Center vertically */
+    height: 100vh;         /* Optional: Make the container take the full viewport height */
+}
+
 
 h2 {
     font-family: Arial, sans-serif;
