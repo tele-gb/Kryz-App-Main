@@ -173,7 +173,12 @@ def lastruns2():
         if request.form.get('action'):
             print("Test Available")
             df = strava.query_sql()
+            print(df.dtypes)
+            df['Date'] = pd.to_datetime(df['Date'])
+            df['Date'] = df['Date'].apply(lambda x: int(x.timestamp()))
             print(df.head())
+
+        
             strava_chart = df.to_json(orient='records')
             mean_of_runs = strava.mean_run_time(df)
             median_of_runs = strava.median_run_time(df)
