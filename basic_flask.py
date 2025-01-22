@@ -168,6 +168,40 @@ def lastruns2():
                                dist_types=strava.distance_dict)
     
     elif request.method == 'POST':
+
+        # Try and get Test Data First
+        if request.form.get('action'):
+            print("Test Available")
+            df = strava.query_sql()
+            print(df.head())
+            strava_chart = df.to_json(orient='records')
+            mean_of_runs = strava.mean_run_time(df)
+            median_of_runs = strava.median_run_time(df)
+            fastest_time = strava.fastest_time(df)
+            fastest_day = strava.fastest_day(df)
+            slowest_time = strava.slowest_time(df)
+            slowest_day = strava.slowest_day(df)
+            latest_day = strava.latest_day(df)
+            latest_time = strava.latest_time(df)
+            current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
+
+            return render_template('lastruns2.html',
+                               mean_of_runs=mean_of_runs,
+                               median_of_runs=median_of_runs,
+                               fastest_time=fastest_time,
+                               fastest_day=fastest_day,
+                               slowest_time=slowest_time,
+                               slowest_day=slowest_day,
+                               latest_day=latest_day,
+                               latest_time=latest_time,
+                               current_time_delta=current_time_delta,
+                               tables=[df.to_html(classes='data')],
+                               strava_chart = strava_chart,
+                               titles=df.columns.values,
+                               dist_types=dist_types)
+    
+
+
         # Handle activity analysis
         distance_length = request.form.get('dist_types')
         if not distance_length:

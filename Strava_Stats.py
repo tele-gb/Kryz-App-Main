@@ -191,6 +191,14 @@ class StravaStats:
         df_selected.to_sql("activities", conn, if_exists="replace", index=False)
         conn.close()
 
+    def query_sql(self):
+        conn = sqlite3.connect('SqlliteDB/strava.db')  
+        c = conn.cursor()
+        # columns=["RunID","Date","Distance","Best_Time"]
+        df=pd.read_sql_query("SELECT * from activities", conn)
+        conn.close()
+        return df
+
     def plot(self,df):
         df['Rolling_Mean'] = df['Rolling_Mean'].replace(0, np.nan)
         df['Rolling_Median'] = df['Rolling_Median'].replace(0, np.nan)
