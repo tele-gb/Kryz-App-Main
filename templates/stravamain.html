@@ -18,12 +18,14 @@
                 Authorize with Strava
             </a>
         </div>
-         <div id="form-section">
-            <form method="POST" action="{{ url_for('lastruns2') }}" id="strava-form">
+        <div id="form-section">
+            <form method="POST" action="{{ url_for('lastruns2') }}" >
+                <button type="submit" name="action" value="get_test_data" id="test_data_pull">Get Test Data</button>
+            </form>
+            <!-- <form method = "POST" action="{{ url_for('lastruns2') }}">
                 <input type="hidden" name="action" value="test_data">
                 <input type="submit" value="Get Test Data" id="test_data_pull"/>
-            </form>
-
+            </form> -->
         </div>
     </div>
 </div>

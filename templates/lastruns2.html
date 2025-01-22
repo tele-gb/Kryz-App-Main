@@ -42,9 +42,8 @@
                         <option value="{{ value }}">{{ key }}</option>
                     {% endfor %}
                 </select>
-                <input type="submit" value="Submit" >
-                <input type="hidden" name="action" value="test_data">
-                <input type="submit" value="Get Test Data" id="test_data_pull"/>
+                <button type="submit" name="action" value="submit_query">Submit</button>
+                <button type="submit" name="action" value="get_test_data" id="test_data_pull">Get Test Data</button>
             </form>
             <!-- <form method = "POST" action="{{ url_for('lastruns2') }}">
                 <input type="hidden" name="action" value="test_data">
@@ -156,7 +155,8 @@
                         backgroundColor: '#ab0eed',
                         fill: false,
                         borderWidth: 8,
-                        tension:0.4
+                        tension:0.4,
+                        pointRadius: 0
                     } 
                     // Additional datasets can go here (e.g., Rolling Mean)
                 ]

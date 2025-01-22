@@ -169,15 +169,19 @@ def lastruns2():
     
     elif request.method == 'POST':
 
+        action = request.form.get('action')
+        print(action)
+
+        if action == 'get_test_data':
+
         # Try and get Test Data First
-        if request.form.get('action'):
+
             print("Test Available")
             df = strava.query_sql()
             print(df.dtypes)
             df['Date'] = pd.to_datetime(df['Date'])
             df['Date'] = df['Date'].astype('int64') // 10**9
             print(df.head())
-
         
             strava_chart = df.to_json(orient='records')
             mean_of_runs = strava.mean_run_time(df)
@@ -206,70 +210,73 @@ def lastruns2():
                                dist_types=dist_types)
     
 
+        elif action == 'submit_query':
+                
+            # Handle activity analysis
+            distance_length = request.form.get('dist_types')
+            if not distance_length:
+                return render_template('lastrunserror.html', error="No distance selected.")
+            
+            try:
+                distance_length = int(distance_length)
+            except ValueError:
+                return render_template('lastrunserror.html', error="Invalid distance value.")
 
-        # Handle activity analysis
-        distance_length = request.form.get('dist_types')
-        if not distance_length:
-            return render_template('lastrunserror.html', error="No distance selected.")
+            print(f"Selected Distance: {distance_length}")
+
+            # Initialize Strava client
+            client = get_strava_client()
+            header2 = {'Authorization': 'Bearer ' + session['access_token']}
+            session['header2'] = header2
+
+            # Fetch activities and process them
+            try:
+                print("Processing selected activities")
+                actlist = strava.all_activities(header2)
+                testlist = strava.activities_list(actlist, distance_length, 150)
+                testdf = strava.multi_activities(50, testlist, header2)
+                testdf2 = strava.rolling_df(testdf, 3)
+                strava_chart = testdf2.to_json(orient='records')
+
+
+                print(strava_chart)
+                print(f"Activity List: {len(actlist)}, Testlist: {len(testlist)}, Testdf: {len(testdf)}, Testdf2: {len(testdf2)}")
         
-        try:
-            distance_length = int(distance_length)
-        except ValueError:
-            return render_template('lastrunserror.html', error="Invalid distance value.")
+            except Exception as e:
+                return render_template('lastrunserror.html', error=f"Error processing activities: {e}")
 
-        print(f"Selected Distance: {distance_length}")
+            if testdf2.empty:
+                return render_template('lastrunserror.html', error="No data available for analysis.")
 
-        # Initialize Strava client
-        client = get_strava_client()
-        header2 = {'Authorization': 'Bearer ' + session['access_token']}
-        session['header2'] = header2
+            # Perform analysis
+            mean_of_runs = strava.mean_run_time(testdf2)
+            median_of_runs = strava.median_run_time(testdf2)
+            fastest_time = strava.fastest_time(testdf2)
+            fastest_day = strava.fastest_day(testdf2)
+            slowest_time = strava.slowest_time(testdf2)
+            slowest_day = strava.slowest_day(testdf2)
+            latest_day = strava.latest_day(testdf2)
+            latest_time = strava.latest_time(testdf2)
+            current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
 
-        # Fetch activities and process them
-        try:
-            print("Processing selected activities")
-            actlist = strava.all_activities(header2)
-            testlist = strava.activities_list(actlist, distance_length, 150)
-            testdf = strava.multi_activities(50, testlist, header2)
-            testdf2 = strava.rolling_df(testdf, 3)
-            strava_chart = testdf2.to_json(orient='records')
-
-
-            print(strava_chart)
-            print(f"Activity List: {len(actlist)}, Testlist: {len(testlist)}, Testdf: {len(testdf)}, Testdf2: {len(testdf2)}")
-       
-        except Exception as e:
-            return render_template('lastrunserror.html', error=f"Error processing activities: {e}")
-
-        if testdf2.empty:
-            return render_template('lastrunserror.html', error="No data available for analysis.")
-
-        # Perform analysis
-        mean_of_runs = strava.mean_run_time(testdf2)
-        median_of_runs = strava.median_run_time(testdf2)
-        fastest_time = strava.fastest_time(testdf2)
-        fastest_day = strava.fastest_day(testdf2)
-        slowest_time = strava.slowest_time(testdf2)
-        slowest_day = strava.slowest_day(testdf2)
-        latest_day = strava.latest_day(testdf2)
-        latest_time = strava.latest_time(testdf2)
-        current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
-
-        # Render analysis results
-        return render_template('lastruns2.html',
-                               mean_of_runs=mean_of_runs,
-                               median_of_runs=median_of_runs,
-                               fastest_time=fastest_time,
-                               fastest_day=fastest_day,
-                               slowest_time=slowest_time,
-                               slowest_day=slowest_day,
-                               latest_day=latest_day,
-                               latest_time=latest_time,
-                               current_time_delta=current_time_delta,
-                               tables=[testdf2.to_html(classes='data')],
-                               strava_chart = strava_chart,
-                               titles=testdf2.columns.values,
-                               dist_types=strava.distance_dict,
-                               distance_length=distance_length)
+            # Render analysis results
+            return render_template('lastruns2.html',
+                                mean_of_runs=mean_of_runs,
+                                median_of_runs=median_of_runs,
+                                fastest_time=fastest_time,
+                                fastest_day=fastest_day,
+                                slowest_time=slowest_time,
+                                slowest_day=slowest_day,
+                                latest_day=latest_day,
+                                latest_time=latest_time,
+                                current_time_delta=current_time_delta,
+                                tables=[testdf2.to_html(classes='data')],
+                                strava_chart = strava_chart,
+                                titles=testdf2.columns.values,
+                                dist_types=strava.distance_dict,
+                                distance_length=distance_length)
+    else:
+        return render_template('lastrunserror.html', error="Invalid action.")
 
 #-------------------------------------------------------------------------#
 #----------------DEBT CALC------------------------------------------------#
