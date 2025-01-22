@@ -175,7 +175,7 @@ def lastruns2():
             df = strava.query_sql()
             print(df.dtypes)
             df['Date'] = pd.to_datetime(df['Date'])
-            df['Date'] = df['Date'].apply(lambda x: int(x.timestamp()))
+            df['Date'] = df['Date'].astype('int64') // 10**9
             print(df.head())
 
         

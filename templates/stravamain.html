@@ -18,7 +18,17 @@
                 Authorize with Strava
             </a>
         </div>
+         <div id="form-section">
+            <form method="POST" action="{{ url_for('lastruns2') }}" id="strava-form">
+                <input type="hidden" name="action" value="test_data">
+                <input type="submit" value="Get Test Data" id="test_data_pull"/>
+            </form>
+
+        </div>
     </div>
 </div>
+
+        <!-- Query Box Section -->
+
 
 {% endblock %}

@@ -43,11 +43,13 @@
                     {% endfor %}
                 </select>
                 <input type="submit" value="Submit" >
-            </form>
-            <form method = "POST" action="{{ url_for('lastruns2') }}">
                 <input type="hidden" name="action" value="test_data">
                 <input type="submit" value="Get Test Data" id="test_data_pull"/>
             </form>
+            <!-- <form method = "POST" action="{{ url_for('lastruns2') }}">
+                <input type="hidden" name="action" value="test_data">
+                <input type="submit" value="Get Test Data" id="test_data_pull"/>
+            </form> -->
         </div>
 
     </div>
