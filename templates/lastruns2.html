@@ -36,19 +36,41 @@
         <div id="form-section">
             <h1 id="query-header">Query Settings</h1>
             <form method="POST" action="{{ url_for('lastruns2') }}" id="strava-form">
-                <label for="dist_types">Select Distance:</label>
-                <select id="dist_types" name="dist_types" required>
-                    {% for key, value in dist_types.items() %}
-                        <option value="{{ value }}">{{ key }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" name="action" value="submit_query">Submit</button>
-                <button type="submit" name="action" value="get_test_data" id="test_data_pull">Get Test Data</button>
+                <!-- Top section with dropdowns -->
+                <div class="top-section">
+                    <!-- Left dropdown -->
+                    <div class="dropdown-container">
+                        <label for="dist_types">Select Distance:</label>
+                        <select id="dist_types" name="dist_types" required>
+                            {% for key, value in dist_types.items() %}
+                                <option value="{{ value }}">{{ key }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Right dropdown (placeholder for additional dropdown) -->
+                    <div class="dropdown-container">
+                        <label for="another_dropdown">Number of Runs:</label>
+                        <select id="another_dropdown" name="run_window">
+                            <option value="5" selected>5 Runs</option>
+                            <option value="10">10 Runs</option>
+                            <option value="20">20 Runs</option>
+                            <option value="50">50 Runs</option>
+                            <option value="100">100 Runs</option>
+                            <option value="200">200 Runs</option>
+                            <option value="300">300 Runs</option>
+                            <option value="600">600 Runs</option>
+                            <option value="1000">1000 Runs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Buttons at the bottom -->
+                <div class="button-section">
+                    <button type="submit" name="action" value="submit_query">Get Real Data</button>
+                    <button type="submit" name="action" value="get_test_data">Get Test Data</button>
+                </div>
             </form>
-            <!-- <form method = "POST" action="{{ url_for('lastruns2') }}">
-                <input type="hidden" name="action" value="test_data">
-                <input type="submit" value="Get Test Data" id="test_data_pull"/>
-            </form> -->
         </div>
 
     </div>
@@ -111,13 +133,20 @@
         const labels = strava_chart_data.map(entry => new Date(parseInt(entry.Date))); // Convert Unix timestamp to Date
         const bestTimes = strava_chart_data.map(entry => entry.Best_Time); // Replace with your key
         const rollingMean = strava_chart_data.map(entry => entry.Rolling_Mean); // Replace with your key
+
+        // Find the earliest date in the data
+        const earliestDate = new Date(Math.min(...labels.map(date => date.getTime())));
+
+        // Set the min to the first of the month of the earliest date
+        const firstOfMonth = new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1);
     
         console.log("Labels:", labels);
         console.log("Best Times:", bestTimes);
+        console.log("First of Month:", firstOfMonth);
 
                 // Calculate the moving average (window size of 3 for example)
         const movingAverage = bestTimes.map((_, index, array) => {
-        const windowSize = 3; // Define the size of the moving average window
+        const windowSize = 6; // Define the size of the moving average window
             if (index < windowSize - 1) {
                 return null; // Not enough data for a moving average yet
             }
@@ -135,19 +164,7 @@
             data: {
                 labels: labels,
                 datasets: [
-                    {   
-                        label: 'Best Time',
-                        data: bestTimes,
-                        // borderColor: '#36A2EB',
-                        // backgroundColor: '#9BD0F5',
-                        // fill: false,
-                        // borderWidth: 8,
-                        // tension:0.4,
-                        pointBackgroundColor: 'black',
-                        pointRadius: 8,
-                        fill: true,
-                        showLine: false
-                    },
+                    
                     {   
                         label: 'Moving Average Time',
                         data: movingAverage,
@@ -157,7 +174,21 @@
                         borderWidth: 8,
                         tension:0.4,
                         pointRadius: 0
-                    } 
+                    },
+                    {   
+                        label: 'Best Time',
+                        data: bestTimes,
+                        // borderColor: '#36A2EB',
+                        // backgroundColor: '#9BD0F5',
+                        // fill: false,
+                        // borderWidth: 8,
+                        // tension:0.4,
+                        pointBackgroundColor: 'black',
+                        borderColor: 'black',
+                        pointRadius: 6,
+                        fill: true,
+                        showLine: false
+                    }
                     // Additional datasets can go here (e.g., Rolling Mean)
                 ]
             },
@@ -165,18 +196,14 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 aspectRatio: 2, // Width to height ratio
-                scales: {
-                    x: {type: 'time', // Set the x-axis to handle time
-                        time: {
-                            unit:'day',
-                            displayFormats: {
-                                day: 'MMM DD' // Format displayed on the axis (e.g., 'Jan 01')
-                            }
-                        },
-                        title: {display: true,text: 'Date'},
-                        ticks: {autoSkip: true,maxTicksLimit: 20}
-                    },
-                    y: {
+                scales: {x: {type: 'time', // Set the x-axis to handle time
+                             time: {unit:'day',
+                                    displayFormats: {day: 'MMM DD'}}, // Format displayed on the axis (e.g., 'Jan 01')
+                            min: firstOfMonth.getTime(), // Start the x-axis at the first of the month
+                            title: {display: true,text: 'Date'},
+                            ticks: {autoSkip: true,maxTicksLimit: 20}
+                            },
+                        y: {
                         title: {display: true,text: 'Time (seconds)'},
                         beginAtZero: false}
                 }

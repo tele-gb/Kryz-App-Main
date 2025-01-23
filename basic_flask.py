@@ -178,12 +178,11 @@ def lastruns2():
 
             print("Test Available")
             df = strava.query_sql()
-            print(df.dtypes)
-            df['Date'] = pd.to_datetime(df['Date'])
-            df['Date'] = df['Date'].astype('int64') // 10**9* 1000
-            print(df.head())
-        
-            strava_chart = df.to_json(orient='records')
+            #make a new dataframe just for the chart object
+            df2=df.copy(deep=True)
+            df2['Date'] = pd.to_datetime(df2['Date'])
+            df2['Date'] = df2['Date'].astype('int64') // 10**9* 1000       
+            strava_chart = df2.to_json(orient='records')
             mean_of_runs = strava.mean_run_time(df)
             median_of_runs = strava.median_run_time(df)
             fastest_time = strava.fastest_time(df)
@@ -214,6 +213,7 @@ def lastruns2():
                 
             # Handle activity analysis
             distance_length = request.form.get('dist_types')
+            run_window = int(request.form.get('run_window'))
             if not distance_length:
                 return render_template('lastrunserror.html', error="No distance selected.")
             
@@ -222,7 +222,7 @@ def lastruns2():
             except ValueError:
                 return render_template('lastrunserror.html', error="Invalid distance value.")
 
-            print(f"Selected Distance: {distance_length}")
+            print(f"Selected Distance: {distance_length}, selected window: {run_window}")
 
             # Initialize Strava client
             client = get_strava_client()
@@ -233,9 +233,10 @@ def lastruns2():
             try:
                 print("Processing selected activities")
                 actlist = strava.all_activities(header2)
-                testlist = strava.activities_list(actlist, distance_length, 150)
+                testlist = strava.activities_list(actlist, distance_length, run_window)
                 testdf = strava.multi_activities(50, testlist, header2)
                 testdf2 = strava.rolling_df(testdf, 3)
+                strava.load_to_sql(testdf2)
                 strava_chart = testdf2.to_json(orient='records')
 
 
