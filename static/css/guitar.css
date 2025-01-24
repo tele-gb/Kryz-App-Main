@@ -35,7 +35,7 @@
 }
 
     /* Optional: Style for the container */
-    .container {
+    #guitar-image {
         max-width: 800px;
         margin: 0 auto;
     }
@@ -55,7 +55,12 @@
         height: 100vh;            /* Full viewport height */
     }
     
-    img {
+    #scale-image {
         max-width: 100%;   /* Ensure the image fits within the container */
         height: auto;      /* Keeps the aspect ratio intact */
+        align-items: center;
+        display: flex;
+        justify-content: center;  /* Centers the image horizontally */
+        align-items: center;      /* Centers the image vertically */
+        height: 100vh;            /* Full viewport height */
     }

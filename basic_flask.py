@@ -233,10 +233,22 @@ def lastruns2():
             try:
                 print("Processing selected activities")
                 actlist = strava.all_activities(header2)
+
+                # Check if the response is a list
+                if isinstance(actlist, list):
+                    # Print the first element
+                    print(actlist[0])
+                elif isinstance(actlist, dict):
+                    # Print the first key-value pair in the dictionary
+                    first_key = list(actlist.keys())[0]
+                    print({first_key: actlist[first_key]})
+                else:
+                    print("The JSON response format is not a list or dictionary.")
+
                 testlist = strava.activities_list(actlist, distance_length, run_window)
                 testdf = strava.multi_activities(50, testlist, header2)
                 testdf2 = strava.rolling_df(testdf, 3)
-                strava.load_to_sql(testdf2)
+                # strava.load_to_sql(testdf2)
                 strava_chart = testdf2.to_json(orient='records')
 
 

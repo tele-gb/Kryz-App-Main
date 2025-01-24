@@ -32,11 +32,13 @@
 
 
 </div>
+<div id = 'guitar-image'>
+    {% if svg_image %}
+    <h1>Root:{{root}} </h1>
+    <h1>Scale: {{scale_type}}  </h1>
+    <h1>Tuning: {{tuning_type}}</h1>
+    <img id="scale-image" src="data:image/svg+xml;base64,{{ svg_image }}" alt="Scale Fretboard" >
 
-{% if svg_image %}
-<h1>Root:{{root}} </h1>
-<h1>Scale: {{scale_type}}  </h1>
-<h1>Tuning: {{tuning_type}}</h1>
-<img src="data:image/svg+xml;base64,{{ svg_image }}" alt="Scale Fretboard" >
+</div>
 {% endif %}
 {% endblock %}
