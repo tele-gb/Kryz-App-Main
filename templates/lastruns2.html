@@ -131,7 +131,7 @@
         // Extract labels and datasets from the JSON
         // const labels = strava_chart_data.map(entry => new Date(entry.Date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }));
         const labels = strava_chart_data.map(entry => new Date(parseInt(entry.Date))); // Convert Unix timestamp to Date
-        const bestTimes = strava_chart_data.map(entry => entry.Best_Time); // Replace with your key
+        const bestTimes = strava_chart_data.map(entry => entry.Seconds); // Replace with your key
         const rollingMean = strava_chart_data.map(entry => entry.Rolling_Mean); // Replace with your key
 
         // Find the earliest date in the data
@@ -154,6 +154,12 @@
             const average = window.reduce((sum, value) => sum + value, 0) / windowSize;
             return average;
         });
+
+        function formatTime(seconds) {
+            let minutes = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
 
         console.log("Moving Average:", movingAverage);
     
@@ -204,9 +210,25 @@
                             ticks: {autoSkip: true,maxTicksLimit: 20}
                             },
                         y: {
-                        title: {display: true,text: 'Time (seconds)'},
-                        beginAtZero: false}
+                        title: { display: true, text: 'Time (MM:SS)' },
+                        beginAtZero: false,
+                        ticks: {stepSize: 60,
+                            callback: function(value) { return formatTime(value); } //  Correctly format tick labels
+                        },
+                        suggestedMin: 1500, // ✅ Round min down to nearest 30s
+                        suggestedMax: 2100  // ✅ Round max up to nearest 30s
+                        }
+                },
+                plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let value = context.raw; // Get value in seconds
+                        return formatTime(value); // Convert to MM:SS format
+                    }
                 }
+            }
+        }
             }
         });
     });

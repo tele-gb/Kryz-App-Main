@@ -179,7 +179,7 @@ class StravaStats:
         input_df2=input_df.fillna(0)
         input_df2["Rolling_Mean"] = input_df2["Rolling_Mean"].astype(int)
         input_df2["Rolling_Median"] = input_df2["Rolling_Median"].astype(int)
-        input_df2["Rolling_Mean"] = input_df2["Rolling_Mean"].apply(self.convert_to_minutes)
+        input_df2["Rolling_Mean_Minutes"] = input_df2["Rolling_Mean"].apply(self.convert_to_minutes)
         input_df2["Rolling_Median"] = input_df2["Rolling_Median"].apply(self.convert_to_minutes)   
         return input_df2
     
