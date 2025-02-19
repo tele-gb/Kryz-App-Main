@@ -503,6 +503,22 @@ def run_simulation():
     return Response(generate(), mimetype='text/event-stream')
 print(Response)
 
+
+#----------------------------------------------------------------------------#
+#----------------Dancing Game V2---------------------------------------------#
+
+@app.route('/dancing_simulatorv2')
+def dancing_simulator2():
+    return render_template('Dancing2.html')
+
+#----------------------------------------------------------------------------#
+#----------------Dancing Game V2---------------------------------------------#
+
+@app.route('/spend_tracker')
+def spend_tracker():
+    return render_template('Spend_Tracker.html')
+
+
 #define some globel variable
 
 @app.errorhandler(404)
