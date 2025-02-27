@@ -4,7 +4,7 @@ pandas
 matplotlib
 seaborn
 gunicorn
-stravaio
+# stravaio
 Requests
 stravalib
 Flask-WTF
@@ -12,3 +12,4 @@ WTForms
 svgutils
 # pyyaml REMOVED AS NOTHING ELSE NEEDS IT
 pathlib
+sourc
