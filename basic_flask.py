@@ -25,22 +25,25 @@ import json
 from flask import Flask, Response, request, jsonify
 import math
 # from IPython.display import SVG, display
-
-
 import os
-os.environ['APP_SETTINGS'] = 'settings.cfg'
 
-
-app=Flask(__name__)
+# Initialize Flask app
+app = Flask(__name__)
 app.secret_key = "Lis@2104"
 
-#put these in enviroment vars
+# Load configuration from environment variable path
+app.config.from_envvar('APP_SETTINGS')
 
-app.config.from_envvar("APP_SETTINGS")
+# Print the app configuration
+print("App Config After Loading Settings:", app.config)
 
+# Access the specific configuration values
+CLIENT_ID = app.config.get('CLIENT_ID')
+CLIENT_SECRET = app.config.get('CLIENT_SECRET')
 
-# client_id = "96903"
-# client_secret = "0f4e7f68927263eb277b60fa2ef396b7964cdc94"
+# Print the values of STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET
+print(f"CLIENT_ID: {CLIENT_ID}")
+print(f"CLIENT_SECRET: {CLIENT_SECRET}")
 
 
 @app.route('/')
@@ -57,7 +60,7 @@ print(dist_types)
 @app.route('/stravamain')
 def stravamain():
     c = Client()
-    url = c.authorization_url(client_id=app.config["CLIENT_ID"],
+    url = c.authorization_url(client_id=app.config['CLIENT_ID'],
                             redirect_uri=url_for('.lastruns2',_external=True )
                             ,scope=['read_all','profile:read_all','activity:read_all'],
                             approval_prompt="force")
@@ -66,30 +69,33 @@ def stravamain():
 
 
 
-#need to add this to strava_statsh;
 def get_strava_client():
-    """Initialize Strava client with a valid access token."""
+    """Initialize Strava client with a valid access token, refresh if expired."""
     client = Client()
+
+    # Retrieve tokens and expiration from the session
     access_token = session.get('access_token')
     refresh_token = session.get('refresh_token')
     expires_at = session.get('expires_at')
 
-    if not access_token or not refresh_token or not expires_at:
-        raise ValueError("Tokens are missing from session!")
-
-    # Check if the token is expired
-    if datetime.utcnow().timestamp() > expires_at:
-        # Refresh the token
+    # If tokens are not present or expired, refresh the access token
+    if not access_token or not refresh_token or not expires_at or datetime.utcnow().timestamp() > expires_at:
+        if not refresh_token:
+            raise ValueError("Refresh token missing from session!")
+        print("Tokens expired or missing, refreshing token...")
+        # Refresh the token if necessary
         refresh_response = client.refresh_access_token(
             client_id=app.config["CLIENT_ID"],
             client_secret=app.config["CLIENT_SECRET"],
             refresh_token=refresh_token
         )
-        # Update session with new tokens
+
+        # Update session with new tokens and expiry
         session['access_token'] = refresh_response['access_token']
         session['refresh_token'] = refresh_response['refresh_token']
         session['expires_at'] = refresh_response['expires_at']
         access_token = refresh_response['access_token']
+        print(f"New access token: {access_token}")
 
     client.access_token = access_token
     return client
@@ -97,41 +103,50 @@ def get_strava_client():
 @app.route('/lastruns2', methods=['GET', 'POST'])
 def lastruns2():
     if request.method == 'GET':
-        # Handle Strava Authorization
-        code = request.args.get("code")
-        if not code:
-            return "Authorization code missing!", 400
-        
-        print(f"Authorization Code: {code}")
-        
-        client = Client()
-        try:
-            access_token = client.exchange_code_for_token(
-                client_id=app.config["CLIENT_ID"],
-                client_secret=app.config["CLIENT_SECRET"],
-                code=code
-            )
-        except Exception as e:
-            return f"Error exchanging code for token: {e}", 500
+        dist_types = strava.distance_dict 
+        print(dist_types)
+        # Check if access tokens are already available in the session
+        if 'access_token' in session:
+            print("Access token already available")
+        else:
+            # If no token, perform OAuth authorization
+            code = request.args.get("code")
+            if not code:
+                return "Authorization code missing!", 400
+            
+            print(f"Authorization Code: {code}")
+            
+            client = Client()
+            try:
+                # Exchange the authorization code for an access token
+                access_token = client.exchange_code_for_token(
+                    client_id=app.config["CLIENT_ID"],
+                    client_secret=app.config["CLIENT_SECRET"],
+                    code=code
+                )
+                print(f"Access Token: {access_token}")
+            except Exception as e:
+                return f"Error exchanging code for token: {e}", 500
 
-        # Store tokens and expiry in session
-        session['access_token'] = access_token['access_token']
-        session['refresh_token'] = access_token['refresh_token']
-        session['expires_at'] = access_token['expires_at']
+            # Store tokens in the session
+            session['access_token'] = access_token['access_token']
+            session['refresh_token'] = access_token['refresh_token']
+            session['expires_at'] = access_token['expires_at']
 
         # Fetch athlete details
+        client = get_strava_client()  # Use the existing or refreshed access token
         strava_athlete = client.get_athlete()
         print(f"Athlete: {strava_athlete}")
 
-        # Render the page with distance selection
-        return render_template('lastruns2.html', 
-                               athlete=strava_athlete, 
-                               dist_types=strava.distance_dict)
+        # Render the page with athlete details
+        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types)
     
     elif request.method == 'POST':
 
         action = request.form.get('action')
         print(action)
+        dist_types = strava.distance_dict 
+        print(dist_types)
 
         if action == 'get_test_data':
 
@@ -217,10 +232,10 @@ def lastruns2():
                 print(f"Activity List: {len(actlist)}, Testlist: {len(testlist)}, Testdf: {len(testdf)}, Testdf2: {len(testdf2)}")
         
             except Exception as e:
-                return render_template('lastrunserror.html', error=f"Error processing activities: {e}")
+                return render_template('lastrunserror.html', error=f"Error processing activities: {e}",dist_types=dist_types)
 
             if testdf2.empty:
-                return render_template('lastrunserror.html', error="No data available for analysis.")
+                return render_template('lastrunserror.html', error="No data available for analysis.",dist_types=dist_types)
 
             # Perform analysis
             mean_of_runs = strava.mean_run_time(testdf2)
@@ -247,8 +262,8 @@ def lastruns2():
                                 tables=[testdf2.to_html(classes='data')],
                                 strava_chart = strava_chart,
                                 titles=testdf2.columns.values,
-                                dist_types=strava.distance_dict,
-                                distance_length=distance_length)
+                                distance_length=distance_length,
+                                dist_types=dist_types)
     else:
         return render_template('lastrunserror.html', error="Invalid action.")
 
