@@ -12,4 +12,3 @@ WTForms
 svgutils
 pyyaml 
 pathlib
-fretboard
