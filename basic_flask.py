@@ -17,9 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import (StringField, SubmitField,BooleanField,DateTimeField,
                     SelectField,TextAreaField,RadioField,StringField)
 from wtforms.validators import DataRequired
-from guitar import Guitar
 from Strava_Stats import StravaStats
-import fretboard  
 import sqlite3
 import time
 from Dancing_Class import DancingGame
@@ -65,43 +63,6 @@ def stravamain():
                             approval_prompt="force")
     print(url)
     return render_template('stravamain.html',authorize_url=url)
-
-# @app.route('/lastruns3')
-# def lastruns3():
-
-#     code = request.args.get("code")
-#     stuff = request.view_args.items
-#     if not code:
-#         return "Authorization code missing!", 400
-    
-#     print(code)
-#     print(stuff)
-
-#     # dist_types = request.form.get('dist_types')
-    
-#     client = Client()
-#     access_token = client.exchange_code_for_token(
-#                                                     client_id=app.config["CLIENT_ID"],
-#                                                     client_secret=app.config["CLIENT_SECRET"],
-#                                                     code=code,
-#                                                 )
-#     # Store tokens and expiry in the session
-#     session['access_token'] = access_token['access_token']
-#     session['refresh_token'] = access_token['refresh_token']
-#     session['expires_at'] = access_token['expires_at']    
-
-
-#     # Probably here you'd want to store this somewhere -- e.g. in a database.
-#     strava_athlete = client.get_athlete()
-#     print(strava_athlete)
-    
-
-
-
-#     print("Distance dictionary:", strava.distance_dict)
-
-#     return render_template('lastruns3.html',code=code,athlete=strava_athlete,access_token=access_token,
-#                                             dist_types=strava.distance_dict)
 
 
 
@@ -328,38 +289,7 @@ def calc_results():
 
 #-------------------------------------------------------------------------#
 #----------------GUITAR---------------------------------------------------#
-
-#define some globel variable
-guitar = Guitar()
-scale_types = guitar.scale_dict
-tuning_types = guitar.tuning_dict
-
-@app.route('/guitarscale', methods=['GET', 'POST'])
-def guitarscale():
-    if request.method == 'POST':
-        # Get form inputs
-
-        # scale_type = request.form['scale_type']
-        scale_type = request.form.get('scale_type', 'maj_scale')
-        root = request.form['root_note']
-        tuning_type = request.form.get('tuning_type', 'standard')
-        svg_file = "static/test.png"
-
-        guitar.draw_fretboard(0,12,root,scale_type,tuning_type,0,svg_file)
-        svg_image=guitar.get_svg_string(svg_file)
-        svg_image_base64 = base64.b64encode(svg_image.encode('utf-8')).decode('utf-8')
-
-
-        return render_template('guitarscale.html',
-                               svg_image=svg_image_base64,
-                            scale_types=scale_types,scale_type=scale_type,tuning_types=tuning_types,root=root,tuning_type=tuning_type
-                            #    ,root_note=root_note
-                            )
-    return render_template('guitarscale.html',
-                           svg_image=None,
-                           scale_types=scale_types,tuning_types=tuning_types
-                        #    ,root_note=root_note
-                           )
+#----------------REMOVED UNTIL CAN FIND A BETTER WAY TO DO IT-------------#
 
 
 #-------------------------------------------------------------------------#
