@@ -10,5 +10,5 @@ stravalib
 Flask-WTF
 WTForms
 svgutils
-pyyaml 
+# pyyaml REMOVED AS NOTHING ELSE NEEDS IT
 pathlib
