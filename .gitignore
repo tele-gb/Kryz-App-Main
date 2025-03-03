@@ -6,6 +6,7 @@ myenv/
 
 # Environment variables file
 *.cfg
+*.flaskenv
 
 #db files
 *.db
@@ -19,4 +20,4 @@ Kryz.json
 #the guitar scale png because it will always change
 test.png
 
-.flaskenv
+
