@@ -1,0 +1,49 @@
+-----------------First time
+#create a venv
+python -m venv myenv
+
+#activate the venv
+--navigate to root
+source myenv/bin/activate --used in pi
+
+
+#install requirments
+pip install -r requirements.txt 
+
+Onnce we've got this working there is some stuff to do to start there service:
+
+1 ---- system service file - /etc/systemd/system/flaskapp.service
+[Unit]
+Description=Flask App Service
+After=network.target
+
+[Service]
+User=kryz-wosik
+WorkingDirectory=/home/kryz-wosik/apps/Kryz-App-Main
+ExecStart=/bin/bash -c 'source /home/kryz-wosik/apps/Kryz-App-Main/test_env/bin/activate && flask run --host=0.0.0.0'
+Restart=always
+EnvironmentFile=/home/kryz-wosik/apps/Kryz-App-Main/.flaskenv
+Environment=APP_SETTINGS=/home/kryz-wosik/apps/Kryz-App-Main/settings.cfg
+
+[Install]
+WantedBy=multi-user.target
+
+2-----.flaskenv file - stored in main app route
+FLASK_APP=basic_flask.py
+FLASK_ENV=production
+SECRET_KEY="Lis@2104"
+CLIENT_ID=96903
+CLIENT_SECRET="0f4e7f68927263eb277b60fa2ef396b7964cdc94"
+APP_SETTINGS="/home/kryz-wosik/apps/Kryz-App-Main/settings.cfg"
+
+3 - these commands to start the service
+sudo systemctl daemon-reload
+sudo systemctl enable flaskapp.service
+sudo systemctl start flaskapp.service
+sudo systemctl status flaskapp.service
+
+Bear in mind the ip address keeps changing
+
+
+
+
