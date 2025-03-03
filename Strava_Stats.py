@@ -119,6 +119,45 @@ class StravaStats:
         r = r.zfill(2)
         combined = float((q) + '.' + (r))
         return combined
+
+    def generic_list(self,dataset):
+        activity_list = []
+        date_list=[]
+        distance_list = []
+        run_dsitance_list = []
+        elapsed_time_list = []
+        moving_time_list = []
+        for i in range (0,len(dataset)):
+            x = (math.floor(dataset[i]['distance']/1000)*1000)
+            if dataset[i]['type'] == "Run":
+
+                activity_list.append(dataset[i]['id'])
+                date_list.append(dataset[i]['start_date'])
+                distance_list.append(dataset[i]['distance'])
+                run_dsitance_list.append(x)
+                elapsed_time_list.append(dataset[i]['elapsed_time'])
+                moving_time_list.append(dataset[i]['moving_time'])
+                
+                data = {
+                    "ActivityId": activity_list,
+                    "Date":date_list,
+                    "Actual_Distance":distance_list,
+                    "Run_Type":run_dsitance_list,
+                    "Elapsed_Time":elapsed_time_list,
+                    "Moving_Time":moving_time_list
+                }
+                
+                df = pd.DataFrame(data)
+                df['Date'] = pd.to_datetime(df['Date'])  # Convert date to datetime
+                df['month'] = df['Date'].dt.to_period('M')  # Extract week period
+
+                # Aggregate weekly running time by rounded distance
+                monthly_data = df.groupby(['month', 'Run_Type'])['Actual_Distance'].sum().reset_index()
+
+                # Pivot for stacked bar plot
+                monthly_pivot = monthly_data.pivot(index='month', columns='Run_Type', values='Actual_Distance').fillna(0)
+
+        return monthly_pivot    
     
     def multi_activities(self,batch_size,activity_list,header):
         test_list = []

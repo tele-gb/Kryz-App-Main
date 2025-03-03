@@ -27,6 +27,9 @@ import math
 # from IPython.display import SVG, display
 import os
 
+##oNLY ON LOCAL WINDOWNS
+os.environ['APP_SETTINGS'] = 'settings.cfg'
+
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = "Lis@2104"
@@ -138,8 +141,15 @@ def lastruns2():
         strava_athlete = client.get_athlete()
         print(f"Athlete: {strava_athlete}")
 
+        #Get the dataframe with details of run distances
+        header2 = {'Authorization': 'Bearer ' + session['access_token']}
+        activitylist=actlist = strava.all_activities(header2)
+        monthlypivot=strava.generic_list(activitylist)
+        monthly_chart =monthlypivot.to_json(orient='records')
+        # print(monthly_chart)
+
         # Render the page with athlete details
-        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types)
+        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types,monthly_chart=monthly_chart)
     
     elif request.method == 'POST':
 
