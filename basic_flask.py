@@ -26,6 +26,10 @@ from flask import Flask, Response, request, jsonify
 import math
 # from IPython.display import SVG, display
 import os
+from types import SimpleNamespace
+
+
+
 
 ##oNLY ON LOCAL WINDOWNS
 os.environ['APP_SETTINGS'] = 'settings.cfg'
@@ -160,6 +164,14 @@ def lastruns2():
 
         if action == 'get_test_data':
 
+            #create dummy athlete details
+            dummy_athlete = SimpleNamespace(
+                firstname="John",
+                lastname="Doe",
+                city="Test City",
+                country="Testland",
+                )
+
         # Try and get Test Data First
 
             print("Test Available")
@@ -192,7 +204,8 @@ def lastruns2():
                                tables=[df.to_html(classes='data')],
                                strava_chart = strava_chart,
                                titles=df.columns.values,
-                               dist_types=dist_types)
+                               dist_types=dist_types,
+                               athlete=dummy_athlete)
     
 
         elif action == 'submit_query':
@@ -214,6 +227,7 @@ def lastruns2():
             client = get_strava_client()
             header2 = {'Authorization': 'Bearer ' + session['access_token']}
             session['header2'] = header2
+            strava_athlete = client.get_athlete()
 
             # Fetch activities and process them
             try:
@@ -273,7 +287,8 @@ def lastruns2():
                                 strava_chart = strava_chart,
                                 titles=testdf2.columns.values,
                                 distance_length=distance_length,
-                                dist_types=dist_types)
+                                dist_types=dist_types,
+                                athlete=strava_athlete)
     else:
         return render_template('lastrunserror.html', error="Invalid action.")
 
