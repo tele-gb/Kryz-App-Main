@@ -188,6 +188,8 @@ def lastruns2():
             slowest_time = strava.slowest_time(df)
             slowest_day = strava.slowest_day(df)
             latest_day = strava.latest_day(df)
+            latest_day = datetime.strptime(latest_day, "%Y-%m-%d %H:%M:%S")
+
             latest_time = strava.latest_time(df)
             current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
 
@@ -269,6 +271,7 @@ def lastruns2():
             slowest_time = strava.slowest_time(testdf2)
             slowest_day = strava.slowest_day(testdf2)
             latest_day = strava.latest_day(testdf2)
+            # latest_day = datetime.strptime(latest_day, "%Y-%m-%d %H:%M:%S")
             latest_time = strava.latest_time(testdf2)
             current_time_delta = abs(round(strava.convert_to_seconds(latest_time) - strava.convert_to_seconds(mean_of_runs), 2))
 

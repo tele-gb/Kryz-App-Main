@@ -9,27 +9,28 @@
 
 <div class = 'jumbotron'>
     <!-- <a id="authorise" href="{{url_for('lastruns2')}}" style="font-size: 24px; font-weight: bold ;">Get last runs</a> -->
-
-    <div id="main-container">
-        <div id="Athlete_Details">
+    <div id="Athlete_Details">
         <h1 id="athlete-title">Athlete Detail</h1>
+        <br>
         <h1> First Name: {{ athlete.firstname }}</h1>
         <h1> Surname: {{ athlete.lastname }}</h1>
         <h1> City: {{ athlete.city }}</h1>
         <h1> Country: {{ athlete.country }}</h1>
         <!-- <h1> Athlete resource State: {{ athlete.resource_state }}</h1> -->
     </div>
+    <div id="main-container">
+
         <div id="text-section">
             {% if latest_day and latest_time and mean_of_runs and current_time_delta is not none %}
                 <h1 id="statistics-title">Run Commentary</h1>
-                <h2 id="latest-day">Your most recent run was on {{ latest_day }}</h2>
-                <h2 id="latest-time">Your most recent time was: {{ latest_time }}</h2>
-                <h2 id="mean-of-runs">Your average time was: {{ mean_of_runs }}</h2>
+                <h2 >Your most recent run was on {{ latest_day.strftime('%d %b %Y') }}</h2>
+                <h2 >Your most recent time was: {{ latest_time }}</h2>
+                <h2 >Your average time was: {{ mean_of_runs }}</h2>
 
                 {% if current_time_delta < 0 %}
-                    <h2 id="time-delta-slower">Your last run was {{ current_time_delta }} seconds slower than your average</h2>
+                    <h2 >Your last run was {{ current_time_delta }} seconds slower than your average</h2>
                 {% else %}
-                    <h2 id="time-delta-faster">Your last run was {{ current_time_delta }} seconds faster than your average</h2>
+                    <h2 >Your last run was {{ current_time_delta }} seconds faster than your average</h2>
                 {% endif %}
             {% else %}
                 <!-- Hidden by default if no data -->
