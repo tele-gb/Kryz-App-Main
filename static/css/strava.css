@@ -70,7 +70,7 @@ h3 {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 20px; /* Add space between sections */
+    gap: px; /* Add space between sections */
     margin-bottom: 20px; /* Space below the container */
     /* flex-direction: column; */
 }
@@ -195,8 +195,10 @@ h3 {
     #form-section {
         flex: 1;
         text-align: left;
-        margin-left: 20px;
+        margin-left: 5px;
         font-family: Arial;
+        color: white;
+        font-size: 20px;
     }
 
         /* Query Header */
@@ -213,7 +215,7 @@ h3 {
                 margin: 0 auto;
                 padding: 20px;
                 border: 1px solid #ccc;
-                background-color: #b9aeae;
+                background-color:black;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -256,3 +258,24 @@ h3 {
             #strava-form button:hover {
                 background-color: #0056b3;
             }
+
+/* ----------------------------------------------------------------- */
+/* Ensure parent container doesn't stretch unexpectedly */
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding:10px;
+}
+
+    #StravaChart {
+        max-width: 750px; /* Set a maximum width */
+        height: 150px;    /* Set a fixed height */
+        margin: 0 auto;   /* Center the chart horizontally */
+    }
+
+    #StravaDistance {
+        max-width: 750px; /* Set a maximum width */
+        height: 250px;    /* Set a fixed height */
+        margin: 0 auto;   /* Center the chart horizontally */
+    }
