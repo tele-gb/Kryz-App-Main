@@ -149,11 +149,12 @@ def lastruns2():
         header2 = {'Authorization': 'Bearer ' + session['access_token']}
         activitylist=actlist = strava.all_activities(header2)
         monthlypivot=strava.generic_list(activitylist)
-        monthly_chart =monthlypivot.to_json(orient='records')
+        strava.load_to_sql(monthlypivot,"monthlydistance")
+        # monthly_chart =monthlypivot.to_json(orient='records')
         # print(monthly_chart)
 
         # Render the page with athlete details
-        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types,monthly_chart=monthly_chart)
+        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types)
     
     elif request.method == 'POST':
 
@@ -175,7 +176,13 @@ def lastruns2():
         # Try and get Test Data First
 
             print("Test Available")
-            df = strava.query_sql()
+            #Distance Chart
+            df_distance = strava.query_sql("monthlydistance")
+            strava_distance = df_distance.to_json(orient="records")
+            print(strava_distance)
+
+            #Main chart and commentary
+            df = strava.query_sql("activities")
             #make a new dataframe just for the chart object
             df2=df.copy(deep=True)
             df2['Date'] = pd.to_datetime(df2['Date'])
@@ -205,6 +212,7 @@ def lastruns2():
                                current_time_delta=current_time_delta,
                                tables=[df.to_html(classes='data')],
                                strava_chart = strava_chart,
+                               strava_distance=strava_distance,
                                titles=df.columns.values,
                                dist_types=dist_types,
                                athlete=dummy_athlete)

@@ -156,7 +156,8 @@ class StravaStats:
 
                 # Pivot for stacked bar plot
                 monthly_pivot = monthly_data.pivot(index='month', columns='Run_Type', values='Actual_Distance').fillna(0)
-
+                monthly_pivot.reset_index(inplace=True)
+                monthly_pivot['month'] = monthly_pivot['month'].astype(str)
         return monthly_pivot    
     
     def multi_activities(self,batch_size,activity_list,header):
@@ -222,19 +223,20 @@ class StravaStats:
         input_df2["Rolling_Median"] = input_df2["Rolling_Median"].apply(self.convert_to_minutes)   
         return input_df2
     
-    def load_to_sql(self,input_df):
+    def load_to_sql(self,input_df,tablename):
         conn = sqlite3.connect('SqlliteDB/strava.db')  
         c = conn.cursor()
         # columns=["RunID","Date","Distance","Best_Time"]
         df_selected = input_df
-        df_selected.to_sql("activities", conn, if_exists="replace", index=False)
+        df_selected.to_sql(tablename, conn, if_exists="replace", index=False)
         conn.close()
 
-    def query_sql(self):
+    def query_sql(self,tablename):
         conn = sqlite3.connect('SqlliteDB/strava.db')  
         c = conn.cursor()
         # columns=["RunID","Date","Distance","Best_Time"]
-        df=pd.read_sql_query("SELECT * from activities", conn)
+        query = f"SELECT * FROM {tablename}"
+        df = pd.read_sql_query(query, conn)
         conn.close()
         return df
 

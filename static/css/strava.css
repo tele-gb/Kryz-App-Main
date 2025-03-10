@@ -270,12 +270,14 @@ h3 {
 
     #StravaChart {
         max-width: 750px; /* Set a maximum width */
-        height: 150px;    /* Set a fixed height */
+        height: 300px;    /* Set a fixed height */
         margin: 0 auto;   /* Center the chart horizontally */
     }
 
     #StravaDistance {
         max-width: 750px; /* Set a maximum width */
-        height: 250px;    /* Set a fixed height */
+        height: 300px;    /* Set a fixed height */
         margin: 0 auto;   /* Center the chart horizontally */
     }
+
+ 

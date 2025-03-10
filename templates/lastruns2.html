@@ -34,7 +34,7 @@
                 {% endif %}
             {% else %}
                 <!-- Hidden by default if no data -->
-                <div id="no-data-message">No data available yet.</div>
+                <div id="no-data-message">No run commentary available yet. Try querying Strava.</div>
             {% endif %}
         </div>
 
@@ -102,12 +102,62 @@
     //Reset the chart
     function resetChart(chart) {
         chart.data.labels = []; // Clear x-axis labels
-        chart.data.datasets.forEach(dataset => {
-            dataset.data = []; // Clear dataset
+        chart.data.datasets.forEach(dataset => {dataset.data = []; // Clear dataset
         });
         chart.update(); // Update the chart to reflect changes
     }
     </script>
+<script>
+    let strava_distance_data;
+    // Ensure this script runs after the canvas element exists
+    document.addEventListener("DOMContentLoaded", () => {
+        strava_distance_data = {{ strava_distance | safe }}; // Correct assignment
+        console.log("strava_distance_data inside DOMContentLoaded:", strava_distance_data);
+
+        // Map months to x-axis labels
+        const labels2 = strava_distance_data.data.map(item => item.month);
+
+        // Dynamically generate datasets for each column (excluding 'month')
+        const datasets = Object.keys(strava_distance_data.data[0])
+            .filter(key => key !== 'month')  // Exclude the 'month' field
+            .map((key, index) => ({
+                label: `${key} Data`,
+                data: strava_distance_data.data.map(item => item[key]),  // Extract values for the specific column
+                backgroundColor: `rgba(${(index * 60) % 255}, ${(index * 30) % 255}, ${(index * 90) % 255}, 0.6)`,
+                borderColor: `rgba(${(index * 60) % 255}, ${(index * 30) % 255}, ${(index * 90) % 255}, 1)`,
+                borderWidth: 1
+            }));
+
+        // Chart.js setup
+        const ctx2 = document.getElementById('StravaDistance').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',  // You can change this to 'line', 'pie', etc.
+            data: {
+                labels: labels2,  // Use months as x-axis labels
+                datasets: datasets  // Use dynamically created datasets
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
 
 <script>
     let strava_chart_data;
