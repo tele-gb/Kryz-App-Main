@@ -112,17 +112,18 @@
     // Ensure this script runs after the canvas element exists
     document.addEventListener("DOMContentLoaded", () => {
         strava_distance_data = {{ strava_distance | safe }}; // Correct assignment
-        console.log("strava_distance_data inside DOMContentLoaded:", strava_distance_data);
+        // console.log("strava_distance_data inside DOMContentLoaded:", strava_distance_data);
 
         // Map months to x-axis labels
-        const labels2 = strava_distance_data.data.map(item => item.month);
+        const labels2 = strava_distance_data.map(item => item.month);
+        console.log("Month_Labels:", labels2);
 
         // Dynamically generate datasets for each column (excluding 'month')
-        const datasets = Object.keys(strava_distance_data.data[0])
+        const datasets = Object.keys(strava_distance_data[0])
             .filter(key => key !== 'month')  // Exclude the 'month' field
             .map((key, index) => ({
                 label: `${key} Data`,
-                data: strava_distance_data.data.map(item => item[key]),  // Extract values for the specific column
+                data: strava_distance_data.map(item => item[key]),  // Extract values for the specific column
                 backgroundColor: `rgba(${(index * 60) % 255}, ${(index * 30) % 255}, ${(index * 90) % 255}, 0.6)`,
                 borderColor: `rgba(${(index * 60) % 255}, ${(index * 30) % 255}, ${(index * 90) % 255}, 1)`,
                 borderWidth: 1
@@ -139,13 +140,13 @@
             options: {
                 responsive: true,
                 scales: {
-                    x: {
+                    x: {stacked:true,
                         title: {
                             display: true,
                             text: 'Month'
                         }
                     },
-                    y: {
+                    y: {stacked:true,
                         title: {
                             display: true,
                             text: 'Value'

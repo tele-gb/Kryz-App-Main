@@ -149,7 +149,7 @@ def lastruns2():
         header2 = {'Authorization': 'Bearer ' + session['access_token']}
         activitylist=actlist = strava.all_activities(header2)
         monthlypivot=strava.generic_list(activitylist)
-        strava.load_to_sql(monthlypivot,"monthlydistance")
+        # strava.load_to_sql(monthlypivot,"monthlydistance")
         # monthly_chart =monthlypivot.to_json(orient='records')
         # print(monthly_chart)
 
