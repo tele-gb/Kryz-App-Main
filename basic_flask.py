@@ -150,11 +150,13 @@ def lastruns2():
         activitylist=actlist = strava.all_activities(header2)
         monthlypivot=strava.generic_list(activitylist)
         # strava.load_to_sql(monthlypivot,"monthlydistance")
-        # monthly_chart =monthlypivot.to_json(orient='records')
+        strava_distance =monthlypivot.to_json(orient='records')
         # print(monthly_chart)
 
         # Render the page with athlete details
-        return render_template('lastruns2.html', athlete=strava_athlete,dist_types=dist_types)
+        return render_template('lastruns2.html', athlete=strava_athlete,
+                                                dist_types=dist_types,
+                                                strava_distance=strava_distance)
     
     elif request.method == 'POST':
 
@@ -179,7 +181,7 @@ def lastruns2():
             #Distance Chart
             df_distance = strava.query_sql("monthlydistance")
             strava_distance = df_distance.to_json(orient="records")
-            print(strava_distance)
+            # print(strava_distance)
 
             #Main chart and commentary
             df = strava.query_sql("activities")
@@ -244,6 +246,10 @@ def lastruns2():
                 print("Processing selected activities")
                 actlist = strava.all_activities(header2)
 
+                monthlypivot=strava.generic_list(actlist)
+                # strava.load_to_sql(monthlypivot,"monthlydistance")
+                strava_distance =monthlypivot.to_json(orient='records')
+
                 # Check if the response is a list
                 if isinstance(actlist, list):
                     # Print the first element
@@ -299,7 +305,8 @@ def lastruns2():
                                 titles=testdf2.columns.values,
                                 distance_length=distance_length,
                                 dist_types=dist_types,
-                                athlete=strava_athlete)
+                                athlete=strava_athlete,
+                                strava_distance=strava_distance)
     else:
         return render_template('lastrunserror.html', error="Invalid action.")
 
