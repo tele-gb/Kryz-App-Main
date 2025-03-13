@@ -154,10 +154,31 @@ class StravaStats:
                 # Aggregate weekly running time by rounded distance
                 monthly_data = df.groupby(['month', 'Run_Type'])['Actual_Distance'].sum().reset_index()
 
+                # Define bin labels
+                def categorize_run_type(distance):
+                    if distance < 5000:
+                        return '0-5k'
+                    elif distance < 10000:
+                        return '5k-10k'
+                    elif distance < 15000:
+                        return '10k-15k'
+                    elif distance < 20000:
+                        return '15k-20k'
+                    else:
+                        return '20k Plus'
+
+                # Apply the function to create a new column
+                df['Run_Category'] = df['Run_Type'].apply(categorize_run_type)
+
+                # Group by month and Run_Category (instead of Run_Type)
+                monthly_data = df.groupby(['month', 'Run_Category'])['Actual_Distance'].sum().reset_index()
+
                 # Pivot for stacked bar plot
-                monthly_pivot = monthly_data.pivot(index='month', columns='Run_Type', values='Actual_Distance').fillna(0)
+                monthly_pivot = monthly_data.pivot(index='month', columns='Run_Category', values='Actual_Distance').fillna(0)
+
                 monthly_pivot.reset_index(inplace=True)
                 monthly_pivot['month'] = monthly_pivot['month'].astype(str)
+
         return monthly_pivot    
     
     def multi_activities(self,batch_size,activity_list,header):

@@ -265,19 +265,16 @@ h3 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding:10px;
+    padding:20px;
 }
 
-    #StravaChart {
-        max-width: 750px; /* Set a maximum width */
-        height: 300px;    /* Set a fixed height */
-        margin: 0 auto;   /* Center the chart horizontally */
-    }
-
-    #StravaDistance {
-        max-width: 750px; /* Set a maximum width */
-        height: 300px;    /* Set a fixed height */
-        margin: 0 auto;   /* Center the chart horizontally */
-    }
+#StravaChart, #StravaDistance {
+    width: 100%;  /* Allow the chart to take full width of its container */
+    max-width: 1000px;  /* Still keep a maximum width */
+    height: 400px;      /* Fixed height */
+    margin: 0 auto;     /* Center the chart */
+    padding: 20px;      /* Add some space inside the chart area */
+    margin: 20px auto;  /* Add margin around the chart for spacing */
+}
 
  
