@@ -4,6 +4,7 @@
 <head>    <link rel="stylesheet" type="text/css" href="static/css/dg.css"> </head>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.5"></script>
 
 
 <div class = 'jumbotron'>
@@ -20,12 +21,27 @@
                     You can do better than that - its time to dance....
                 </p>
         </div>
+     </div>
+</div>
 
+<div id="game-container">
+    <div id="game">
+        <p>Lets start by requisitioning a truck </p>
+        <!-- <button type="submit" name="b_1" value="get_truck" id="b1">Order Truck from Megacorp Logistics</button> -->
+        <button id="b1" name="b_1"  hx-post="/get_truck" hx-target="#truckCount" hx-swap="innerHTML">Order Truck from Megacorp Logistics Division</button>
+
+    </div>     
+
+    <div id="resources" class="box">
+        <h3>Resources</h3>
+        <p id="truckCount">Trucks: 0</p>
+    </div>    
+
+    <div id="dancers">
+
+    </div>    
+</div>
 
 {% endblock %}
 
 
-<div id="game">
-    <button type="submit" name="b_1" value="get_truck" id="b1">Press This</button>
-
-</div>

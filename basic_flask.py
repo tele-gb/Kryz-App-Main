@@ -27,6 +27,7 @@ import math
 # from IPython.display import SVG, display
 import os
 from types import SimpleNamespace
+from Dancing2 import DancingGame2
 
 
 
@@ -491,6 +492,12 @@ def run_simulation():
     return Response(generate(), mimetype='text/event-stream')
 print(Response)
 
+#----------------------------------------------------------------------------#
+#----------------Spend Tracker---------------------------------------------#
+
+@app.route('/spend_tracker')
+def spend_tracker():
+    return render_template('Spend_Tracker.html')
 
 #----------------------------------------------------------------------------#
 #----------------Dancing Game V2---------------------------------------------#
@@ -499,15 +506,29 @@ print(Response)
 def dancing_simulator2():
     return render_template('Dancing2.html')
 
+game = DancingGame2(120, 50)
+
+
+@app.route('/next_step', methods=['POST'])
+def next_step():
+    step = game.progress_story()
+    if step:
+        return jsonify({
+            "button_text": step["text"],
+            "next_action": game.current_step if step["next_action"] else None,
+            "trucks": game.trucks,
+            "dancers": game.dancers
+        })
+    return "", 204  # No more steps
+
+@app.route('/get_truck', methods=['POST'])
+def get_truck():
+    new_count = game.get_truck()
+    return f"Trucks: {new_count}"
+
+
 #----------------------------------------------------------------------------#
-#----------------Dancing Game V2---------------------------------------------#
-
-@app.route('/spend_tracker')
-def spend_tracker():
-    return render_template('Spend_Tracker.html')
-
-
-#define some globel variable
+#END END END--------GLOBAL VARIABLES AND RUN---------------------------------#
 
 @app.errorhandler(404)
 def page_not_found(e):
