@@ -33,31 +33,9 @@ class DancingGame2:
         self.base_infection_rate = 0.5
         self.death_point = 0
         self.tick = 0
-
-        self.early_steps = [
-            {"text": "Get a truck", "next_action": "find_dancers", "update": "trucks"},
-            {"text": "Get Speakers", "next_action": "get_speakers", "update": "speakers"},
-            {"text": "Start the music", "next_action": "recruit_more", "update": None},
-            {"text": "Recruit more people", "next_action": "spread_the_plague", "update": "dancers"},
-            {"text": "The dance spreads!", "next_action": None, "update": None},  # Final step
-        ]
         self.current_step = 0
         self.truck_count = 0
         self.speaker_count = 0
-
-    def progress_early(self):
-        if self.current_step < len(self.early_steps):
-            step = self.early_steps[self.current_step]
-
-            # Update game state if required
-            if step["update"] == "trucks":
-                self.get_truck
-            elif step["update"] == "speakers":
-                self.get_speaker  # Example: finding dancers adds multiple
-
-            self.current_step += 1
-            return step
-        return None  # No more steps
 
     def get_truck(self):
         self.truck_count += 1
@@ -66,6 +44,7 @@ class DancingGame2:
     def get_speaker(self):
         self.speaker_count += 1
         return self.speaker_count
+
 
     def adjust_rates(self):
         # Use self attributes for the calculation

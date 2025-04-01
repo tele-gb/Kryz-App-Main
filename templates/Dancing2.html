@@ -26,9 +26,25 @@
 
 <div id="game-container">
     <div id="game">
+        <h3>Game</h3>
         <p>Lets start by requisitioning a truck </p>
-        <!-- <button type="submit" name="b_1" value="get_truck" id="b1">Order Truck from Megacorp Logistics</button> -->
-        <button id="b1" name="b_1"  hx-post="/get_truck" hx-target="#truckCount" hx-swap="innerHTML">Order Truck from Megacorp Logistics Division</button>
+        <button id="b1" 
+                name="b_1" 
+                hx-post="/get_truck" 
+                hx-target="#truckCount" 
+                hx-swap="innerHTML" 
+                hx-trigger="click">
+                Order Truck from Megacorp Logistics Division</button>
+
+        <button 
+                hx-get="/step2cond" 
+                hx-trigger="revealed" 
+                hx-target="#next-button"
+                hx-swap="outerHTML"
+                style="display: none;"  
+                id="next-button">
+                Put a speaker on the truck
+        </button>
 
     </div>     
 
@@ -38,7 +54,7 @@
     </div>    
 
     <div id="dancers">
-
+        <h3>Dancers</h3>
     </div>    
 </div>
 

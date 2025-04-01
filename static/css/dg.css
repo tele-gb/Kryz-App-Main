@@ -6,16 +6,16 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: px; /* Add space between sections */
+    gap: 20px; /* Add space between sections */
     margin-bottom: 20px; /* Space below the container */
     flex-direction: row;
 }
 
-    #b1 button:hover {
+    #b_1 button:hover {
         background-color: #0056b3;
     }
 
-    #b1 button {
+    #b_1 button {
         background-color: #007bff;
         color: #fff;
         padding: 10px 20px;

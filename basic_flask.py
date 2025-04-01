@@ -508,23 +508,16 @@ def dancing_simulator2():
 
 game = DancingGame2(120, 50)
 
-
-@app.route('/next_step', methods=['POST'])
-def next_step():
-    step = game.progress_story()
-    if step:
-        return jsonify({
-            "button_text": step["text"],
-            "next_action": game.current_step if step["next_action"] else None,
-            "trucks": game.trucks,
-            "dancers": game.dancers
-        })
-    return "", 204  # No more steps
-
 @app.route('/get_truck', methods=['POST'])
 def get_truck():
-    new_count = game.get_truck()
-    return f"Trucks: {new_count}"
+    truck_count = game.get_truck()
+    return f"Trucks: {truck_count}"
+
+@app.route('/cs2cond')
+def stcond():
+    if game.get_trucks() >= 1:
+        return """<button hx-post='/some_other_action' hx-target='#game-state' hx-swap='innerHTML'>Next Action!</button>"""
+    return ""  # Return nothing if condition isn't met
 
 
 #----------------------------------------------------------------------------#
