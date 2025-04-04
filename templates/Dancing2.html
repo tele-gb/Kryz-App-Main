@@ -5,6 +5,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+<script src="Test Code\dancing_game.js"></script>
 
 
 <div class = 'jumbotron'>
@@ -27,24 +28,26 @@
 <div id="game-container">
     <div id="game">
         <h3>Game</h3>
-        <p>Lets start by requisitioning a truck </p>
-        <button id="b1" 
-                name="b_1" 
-                hx-post="/get_truck" 
-                hx-target="#truckCount" 
-                hx-swap="innerHTML" 
-                hx-trigger="click">
-                Order Truck from Megacorp Logistics Division</button>
-
-        <button 
-                hx-get="/step2cond" 
-                hx-trigger="revealed" 
-                hx-target="#next-button"
-                hx-swap="outerHTML"
-                style="display: none;"  
-                id="next-button">
-                Put a speaker on the truck
-        </button>
+            <div id = "truck">
+                <p>Lets start by requisitioning a truck </p>
+                <button type="button" onclick="document.getElementById('speakers').style.display='block'">Requisition a truck from megacorp logistics</button>
+            </div>
+            <br>
+            <div id = "speakers" style="display: none;">
+                <p >Put a speaker on the truck</p>
+                <button type="button" onclick="document.getElementById('question').style.display='block'">Put a speaker on the truck</button>
+            </div>
+            <br>    
+            <div id = "question" style="display: none;">
+                <p >What?  Why would we put a speaker on a truck?</p>
+                <button type="button" onclick="document.getElementById('target').style.display='block'">Boss says so.  Just do it.</button>
+            </div>
+            <br>    
+            <div id = "target" style="display: none; margin-top: 10px;">
+                <p >Where are we going?</p>
+                <input type="text" placeholder="Target location" />
+                <button type="button">Search</button>
+            </div>
 
     </div>     
 
