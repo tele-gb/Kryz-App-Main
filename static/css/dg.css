@@ -71,3 +71,21 @@
         color: #333;
         text-align: center;
     }
+
+    #grid {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr); /* 16 steps */
+        gap: 5px;
+      }
+      
+      .step {
+        width: 40px;
+        height: 40px;
+        background-color: #ddd;
+        border: none;
+        cursor: pointer;
+      }
+      
+      .step.active {
+        background-color: #4CAF50; /* Highlight active steps */
+      }
