@@ -89,3 +89,10 @@
       .step.active {
         background-color: #4CAF50; /* Highlight active steps */
       }
+
+      .step.playing {
+        border-color: black; /* Highlight active steps */
+        border-width: 5px;
+        border-radius: 20px;
+        border-style: solid;
+      }

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+
 
 let truckCount = 0;
 let spkrcount = 0;
@@ -88,8 +88,18 @@ function sendToFlask(population) {
     .catch(error => console.error('Error:', error));
 }
 
+//--------------------------------------------------------------------------------------//
+//Sequencer MiniGame
+//--------------------------------------------------------------------------------------//
+document.addEventListener("DOMContentLoaded", function() {
+
 let sequence = new Array(16).fill(false); // 16 steps initialized to false (off)
 let audioContext = new (window.AudioContext || window.AudioContext)();
+let intervalId = null;
+let kick = new Audio("static/Sounds/Kick808.wav");
+// kick.preload = "auto"; // Preload the audio
+let time = 100
+
 
 document.querySelectorAll('.step').forEach(button => {
   button.addEventListener('click', () => {
@@ -99,18 +109,47 @@ document.querySelectorAll('.step').forEach(button => {
   });
 });
 
+// Sequencer logic
 document.getElementById('playBtn').addEventListener('click', () => {
-  let currentStep = 0;
-  const interval = setInterval(() => {
-    if (sequence[currentStep]) {
-      playSound();
+  if (intervalId) return; // Prevent multiple intervals
+
+  let currentStep = 1;
+  const totalSteps = 16;
+
+  intervalId = setInterval(() => {
+    // Remove 'playing' class from all steps
+    document.querySelectorAll('.step').forEach(btn => {
+      btn.classList.remove('playing');
+    });
+
+    const currentBtn = document.querySelector(`.step[data-step="${currentStep}"]`);
+    if (currentBtn) {
+      currentBtn.classList.add('playing');
+      if (currentBtn.classList.contains('active')) {
+        playkick();
+      }
     }
+
     currentStep++;
-    if (currentStep === sequence.length) {
-      currentStep = 0; // Reset to the first step
+    if (currentStep > totalSteps) {
+      currentStep = 1;
     }
-  }, 500); // Delay between steps (adjust for tempo)
+  }, time);
 });
+
+// STOP
+document.getElementById('stopBtn').addEventListener('click', () => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+
+    // Remove all borders when stopped
+    document.querySelectorAll('.step').forEach(btn => {
+      btn.classList.remove('playing');
+    });
+  }
+});
+
 
 document.getElementById('clearBtn').addEventListener('click', () => {
   sequence.fill(false);
@@ -124,6 +163,13 @@ function playSound() {
   oscillator.connect(audioContext.destination);
   oscillator.start();
   oscillator.stop(audioContext.currentTime + 0.1); // Short burst sound
+}
+
+function playkick() {
+  kick.pause(); // Stop the previous kick (if playing)
+  kick.currentTime = 0; // Reset the playback to the beginning
+  kick.play();
+  console.log(kick.duration);
 }
 
 
