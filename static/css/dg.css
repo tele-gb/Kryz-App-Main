@@ -9,6 +9,7 @@
     gap: 20px; /* Add space between sections */
     margin-bottom: 20px; /* Space below the container */
     flex-direction: row;
+    justify-content: space-around;
 }
 
     #b_1 button:hover {
@@ -74,17 +75,21 @@
 
     #grid {
         display: grid;
-        grid-template-columns: repeat(16, 1fr); /* 16 steps */
-        gap: 5px;
+        grid-template-columns: repeat(17, 1fr); /* 16 steps */
+        gap: 6px;
       }
       
       .step {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         background-color: #ddd;
         border: none;
         cursor: pointer;
       }
+
+
+/* SLIDER */
+
       
       .step.active {
         background-color: #4CAF50; /* Highlight active steps */

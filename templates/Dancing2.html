@@ -50,34 +50,86 @@
                 <div id="locationResult" style="margin-top: 10px;"></div>
             </div>
             <br>
-            <div id="sequencer">
+            <div id = "dropbeat" style="display: none;">
+                <button id="beat1" type="button" onclick="revealsequencer()">Drop a beat!</button>
+            </div>
+
+            <br>
+            <div id="sequencer" style="display: none;">
                 <h3>Sequencer Game</h3>
-                <div id="grid" class="grid">
-                  <!-- Generate a grid of clickable cells here (e.g., 16 steps x 1 row) -->
-                  <button class="step" data-step="1"></button>
-                  <button class="step" data-step="2"></button>
-                  <button class="step" data-step="3"></button>
-                  <button class="step" data-step="4"></button>
-                  <button class="step" data-step="5"></button>
-                  <button class="step" data-step="6"></button>
-                  <button class="step" data-step="7"></button>
-                  <button class="step" data-step="8"></button>
-                  <button class="step" data-step="9"></button>
-                  <button class="step" data-step="10"></button>
-                  <button class="step" data-step="11"></button>
-                  <button class="step" data-step="12"></button>
-                  <button class="step" data-step="13"></button>
-                  <button class="step" data-step="14"></button>
-                  <button class="step" data-step="15"></button>
-                  <button class="step" data-step="16"></button>
-                  <!-- More steps... -->
+                <div class="grid-container">
+                  <span id="drumkik">Kick</span>
+                  <div id="gridkik" class="grid">
+                    <button class="step" data-step="1"></button>
+                    <button class="step" data-step="2"></button>
+                    <button class="step" data-step="3"></button>
+                    <button class="step" data-step="4"></button>
+                    <button class="step" data-step="5"></button>
+                    <button class="step" data-step="6"></button>
+                    <button class="step" data-step="7"></button>
+                    <button class="step" data-step="8"></button>
+                    <button class="step" data-step="9"></button>
+                    <button class="step" data-step="10"></button>
+                    <button class="step" data-step="11"></button>
+                    <button class="step" data-step="12"></button>
+                    <button class="step" data-step="13"></button>
+                    <button class="step" data-step="14"></button>
+                    <button class="step" data-step="15"></button>
+                    <button class="step" data-step="16"></button>
+                  </div>
                 </div>
+              
+                <div class="grid-container">
+                  <span id="drumsnr">Snare</span>
+                  <div id="gridsnr" class="grid">
+                    <button class="step" data-step="1"></button>
+                    <button class="step" data-step="2"></button>
+                    <button class="step" data-step="3"></button>
+                    <button class="step" data-step="4"></button>
+                    <button class="step" data-step="5"></button>
+                    <button class="step" data-step="6"></button>
+                    <button class="step" data-step="7"></button>
+                    <button class="step" data-step="8"></button>
+                    <button class="step" data-step="9"></button>
+                    <button class="step" data-step="10"></button>
+                    <button class="step" data-step="11"></button>
+                    <button class="step" data-step="12"></button>
+                    <button class="step" data-step="13"></button>
+                    <button class="step" data-step="14"></button>
+                    <button class="step" data-step="15"></button>
+                    <button class="step" data-step="16"></button>
+                  </div>
+                </div>
+              
+                <div class="grid-container">
+                  <span id="drumhh">HiHat</span>
+                  <div id="gridhh" class="grid">
+                    <button class="step" data-step="1"></button>
+                    <button class="step" data-step="2"></button>
+                    <button class="step" data-step="3"></button>
+                    <button class="step" data-step="4"></button>
+                    <button class="step" data-step="5"></button>
+                    <button class="step" data-step="6"></button>
+                    <button class="step" data-step="7"></button>
+                    <button class="step" data-step="8"></button>
+                    <button class="step" data-step="9"></button>
+                    <button class="step" data-step="10"></button>
+                    <button class="step" data-step="11"></button>
+                    <button class="step" data-step="12"></button>
+                    <button class="step" data-step="13"></button>
+                    <button class="step" data-step="14"></button>
+                    <button class="step" data-step="15"></button>
+                    <button class="step" data-step="16"></button>
+                  </div>
+                </div>
+              
                 <button id="playBtn">Play</button>
                 <button id="stopBtn">Stop</button>
                 <button id="clearBtn">Clear</button>
+                <input id="BPM" type="range" min="60" max="200" value="120" class="slider">
+                <span id="bpmDisplay">120</span> BPM
               </div>
-
-    </div>     
+    </div>
 
     <!-- <audio src="static/Sounds/Kick808.wav"></audio> -->
 
@@ -89,6 +141,7 @@
 
     <div id="dancers">
         <h3>Dancers</h3>
+        <p id="pot_dancers">Potential Dancers: </p>
     </div>    
 </div>
 
