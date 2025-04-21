@@ -32,6 +32,7 @@ function requisitionspker() {
     // 3 - Hide the boss button
     document.getElementById('quest-text').style.display = 'none';
     document.getElementById('spkr-1').style.display = 'none';
+    document.getElementById('brdelete').style.display = 'none';
 
     const button = document.getElementById('spkr-2');
     button.innerText = 'Add another speaker';
