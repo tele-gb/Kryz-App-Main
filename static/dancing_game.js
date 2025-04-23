@@ -225,6 +225,15 @@ document.getElementById('playBtn').addEventListener('click', () => {
     isPlaying = true;
     currentStep = 1;
     playStep();
+    // also trigger the main game loop here:
+    const bpmflask = document.getElementById('BPM').value;
+    const popflask = document.getElementById('pot_dancers').value;
+    console.log("BPM +" + bpmflask);
+    console.log("POP +" + potdancers);
+    // Define and initialize the EventSource - this triggers the old simulation, so in theory could 
+    // trigger the new simulation the same way
+    const eventSource = new EventSource(`/run_simulation?bpm=${bpmflask}&population=${potdancers}`);
+
   }
 });
 
