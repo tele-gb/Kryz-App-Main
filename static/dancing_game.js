@@ -52,16 +52,18 @@ function searchLocation() {
 
     // Dummy data for now, you can replace these with real data later
     const locations = {
-        "test": {
-            name: "Testland",
-            population: 100,
-            places: ["Test1", "Test2", "Test3"]
+        "Paris": {
+            name: "Paris",
+            population: 'Very Large'
         },
         // Add other mock locations here if you want
-        "sample": {
-            name: "Sample City",
-            population: 250000,
-            places: ["Sample Park", "Sample Mall", "Sample Beach"]
+        "Bruz": {
+            name: "Bruz",
+            population: "Medium"
+        },
+        "Clion": {
+            name: "Clion",
+            population: "Small",
         }
     };
 
@@ -81,6 +83,39 @@ function searchLocation() {
         resultDiv.innerHTML = `<p>No data found for "${input}".</p>`;
     }
 
+}
+
+function selectLocation() {
+    // Get the dropdown element
+    const dropdown = document.getElementById('locationDropdown');
+    // Get the selected value (the location name)
+    const name = dropdown.options[dropdown.selectedIndex].text.split(' (')[0]; // e.g., "Paris"
+    if (!dropdown.value) {
+        document.getElementById('locationResult').innerText = "Please select a location.";
+        return;
+    }
+
+    // Send the name to Flask
+    fetch('/select_place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // If Flask found the location, update the UI
+        if (data.found) {
+            document.getElementById('locationResult').innerHTML = `
+                <p><strong>Location:</strong> ${data.name}</p>
+                <p><strong>Population:</strong> ${data.population}</p>
+            `;
+            document.getElementById('dropbeat').style.display = 'block';
+            potdancers = data.population;
+            document.getElementById('pot_dancers').innerText = `Potential Dancers: ${potdancers}`;
+        } else {
+            document.getElementById('locationResult').innerText = "Location not found in database.";
+        }
+    });
 }
 
 function sendToFlask(population) {

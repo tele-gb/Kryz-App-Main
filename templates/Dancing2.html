@@ -43,10 +43,15 @@
                 <button id="spkr-2" type="button" onclick="requisitionspker()">Boss says so.  Just do it.</button>
             </div>
             <br>    
-            <div id = "target" style="display: none; margin-top: 10px;">
-                <p >Where are we going?</p>
-                <input type="text" id="locationInput" placeholder="Target location" />
-                <button type="button" onclick="searchLocation()">Search</button>
+            <div id="target" style="display: none; margin-top: 10px;">
+                <p>Where shall we go?</p>
+                <select id="locationDropdown">
+                    <option value="" disabled selected>Select a location</option>
+                    <option value="1" data-name="Paris" >Paris (Pop: Very Large)</option>
+                    <option value="2" data-name="Bruz" >Bruz (Pop: Medium)</option>
+                    <option value="3" data-name="Clion">Clion (Pop: Very Small)</option>
+                </select>
+                <button type="button" onclick="selectLocation()">Go</button>
                 <div id="locationResult" style="margin-top: 10px;"></div>
             </div>
             <br>

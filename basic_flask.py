@@ -506,6 +506,29 @@ def spend_tracker():
 def dancing_simulator2():
     return render_template('Dancing2.html')
 
+# Initialize the DancingGame2 instance with default values
+@app.route('/select_place', methods=['POST'])
+def select_place():
+    data = request.get_json()
+    name = data.get('name')
+    result = {'found': False}
+    if not name:
+        return jsonify(result)
+    try:
+        conn = sqlite3.connect('SqlliteDB/towns.db')
+        c = conn.cursor()
+        c.execute("SELECT id, city, population, lat, lng FROM france_citiesgrid2 WHERE LOWER(city) = LOWER(?)", (name,))
+        row = c.fetchone()
+        conn.close()
+        if row:
+            result = {'found': True, 'id': row[0], 'name': row[1], 'population': row[2]}
+    except Exception as e:
+        print(f"DB error: {e}")
+    return jsonify(result)
+
+
+
+
 game = DancingGame2(120, 50)
 
 @app.route('/get_truck', methods=['POST'])
