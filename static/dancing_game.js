@@ -108,6 +108,8 @@ function selectLocation() {
             document.getElementById('locationResult').innerHTML = `
                 <p><strong>Location:</strong> ${data.name}</p>
                 <p><strong>Population:</strong> ${data.population}</p>
+                <p><strong>Location - Latitude:</strong> ${data.lat}</p>
+                <p><strong>Location - Longditude:</strong> ${data.lng}</p>
             `;
             document.getElementById('dropbeat').style.display = 'block';
             potdancers = data.population;

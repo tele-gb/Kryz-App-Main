@@ -521,7 +521,7 @@ def select_place():
         row = c.fetchone()
         conn.close()
         if row:
-            result = {'found': True, 'id': row[0], 'name': row[1], 'population': row[2]}
+            result = {'found': True, 'id': row[0], 'name': row[1], 'population': row[2], 'lat': row[3], 'lng': row[4]}
     except Exception as e:
         print(f"DB error: {e}")
     return jsonify(result)
