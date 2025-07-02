@@ -342,7 +342,8 @@ class DiseaseOutbreakSimulator:
     
     
     def get_global_status(self):
-        df = pd.DataFrame.from_dict(sim.towns, orient='index').reset_index().rename(columns={'index': 'id'})
+        towns_dict = {tid: town.__dict__ for tid, town in self.towns.items()}
+        df = pd.DataFrame.from_dict(self.towns, orient='index').reset_index().rename(columns={'index': 'id'})
         city_count = df['city'].nunique()
         columns_to_sum = ['population', 'infected', 'calories','dead', 'total_infected']
         sums = df[columns_to_sum].sum()

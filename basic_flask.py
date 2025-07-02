@@ -28,6 +28,7 @@ import math
 import os
 from types import SimpleNamespace
 from Dancing2 import DancingGame2
+from dancing3 import DiseaseOutbreakSimulator
 
 
 
@@ -522,6 +523,7 @@ def select_place():
         conn.close()
         if row:
             result = {'found': True, 'id': row[0], 'name': row[1], 'population': row[2], 'lat': row[3], 'lng': row[4]}
+            session['selected_townid'] = row[0]  # Store in session
     except Exception as e:
         print(f"DB error: {e}")
     return jsonify(result)
@@ -541,6 +543,86 @@ def stcond():
     if game.get_trucks() >= 1:
         return """<button hx-post='/some_other_action' hx-target='#game-state' hx-swap='innerHTML'>Next Action!</button>"""
     return ""  # Return nothing if condition isn't met
+
+@app.route('/update_bpm', methods=['POST'])
+def update_bpm():
+    data = request.get_json()
+    bpm = data.get('bpm')
+    # Store bpm in session, global, or however your simulation accesses it
+    session['current_bpm'] = bpm
+    return jsonify({'status': 'ok'})
+
+@app.route('/stop_simulation', methods=['POST'])
+def stop_simulation():
+    session['stop_simulation'] = True
+    return jsonify({'status': 'stopping'})
+
+
+@app.route('/rundancing2', methods=['POST', 'GET'])
+def rundancing2():
+    townid = session.get('selected_townid')
+    if not townid:
+        return jsonify({'error': 'No townid in session'}), 400
+    bpm = session.get('current_bpm', 120) 
+    sim = DiseaseOutbreakSimulator(default_params={'bpm': bpm})
+    sim.reset_infections()
+    print("Starting Sim")
+
+    # Add initial towns
+    town1 = sim.add_town(id=townid,start_tick=1)  # This needs to come from the choice of town
+    df = pd.DataFrame()
+    max_ticks = 5000  # Maximum ticks as a safety measure
+    last_infected_count = -1  # Track infection count to detect stagnation
+    stagnation_threshold = 10  # Stop after this many ticks with no change
+    # Run simulation
+    for tick in range(max_ticks):
+
+        if session.get('stop_simulation'):
+            print("Simulation stopped by user.")
+            session['stop_simulation'] = False  # Reset for next run
+            break
+        events = sim.run_tick(1)
+        
+        # Check if infection has stopped spreading
+        current_infected = sum(town.infected for town in sim.towns.values())
+        
+        # Break conditions:
+        # 1. No infections left
+        # 2. Infection count hasn't changed for several ticks
+        if current_infected == 0:
+            print(f"Simulation ended at tick {sim.global_tick} - no infections left")
+            break
+        elif current_infected == last_infected_count:
+            stagnation_counter += 1
+            if stagnation_counter >= stagnation_threshold:
+                print(f"Simulation ended at tick {sim.global_tick} - infection stagnant for {stagnation_threshold} ticks")
+                break
+        else:
+            last_infected_count = current_infected
+            stagnation_counter = 0
+
+            # Log status every 10 ticks
+        if sim.global_tick % 10 == 0:
+            new_row = sim.get_global_status()
+            df = pd.concat([df, new_row], ignore_index=True)
+            # print(df.tail())
+
+    if tick == max_ticks - 1:
+        print(f"Finished Sim after maximum ticks ({max_ticks})")
+
+    # plt = sim.make_charts(df)     
+    # plt.tight_layout()
+    # plt.show()   
+    # print(df.tail(1))
+
+    state_df = sim.towns_dict_to_df(sim.towns)
+
+    return jsonify({
+        "status": "completed",
+        "final_tick": sim.global_tick,
+        "final_infected": int(current_infected),
+        "towns": state_df.to_dict(orient="records")
+    })
 
 
 #----------------------------------------------------------------------------#

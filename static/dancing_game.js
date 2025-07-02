@@ -238,6 +238,13 @@ function playStep() {
   currentStep++;
   if (currentStep > totalSteps) currentStep = 1;
 
+    // Send current BPM to Flask at each tick
+  fetch('/update_bpm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bpm: bpm })
+  });
+
   if (isPlaying) {
     setTimeout(playStep, bpmcalc(bpm)); // Use updated bpm for next beat
   }
@@ -269,7 +276,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     console.log("POP +" + potdancers);
     // Define and initialize the EventSource - this triggers the old simulation, so in theory could 
     // trigger the new simulation the same way
-    const eventSource = new EventSource(`/run_simulation?bpm=${bpmflask}&population=${potdancers}`);
+    const eventSource = new EventSource(`/rundancing2?bpm=${bpmflask}&population=${potdancers}`);
 
   }
 });
@@ -278,6 +285,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
 document.getElementById('stopBtn').addEventListener('click', () => {
   isPlaying = false;
   document.querySelectorAll('.step').forEach(btn => btn.classList.remove('playing'));
+    // Tell Flask to stop the simulation
+  fetch('/stop_simulation', { method: 'POST' });
 });
 
 // Clear Button
