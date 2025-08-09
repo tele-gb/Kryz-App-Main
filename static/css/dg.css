@@ -77,6 +77,13 @@
         display: grid;
         grid-template-columns: repeat(17, 1fr); /* 16 steps */
         gap: 6px;
+        background-image: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent calc((20px + 6px) * 4 - 3px), /* width+gap times 4 steps */
+        #ccc calc((20px + 6px) * 4 - 3px),
+        #ccc calc((20px + 6px) * 4) /* width+gap times 4 steps */
+        );
       }
       
       .step {
@@ -86,6 +93,10 @@
         border: none;
         cursor: pointer;
       }
+
+      .grid .step:nth-child(4n):not(:last-child) {
+        border-right: 2px solid #0e0707;
+        }
 
 
 /* SLIDER */
