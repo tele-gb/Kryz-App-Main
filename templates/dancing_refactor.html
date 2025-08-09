@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dancing Infection Simulator (Browser)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 18px; }
+    header { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    button { padding:8px 12px; border-radius:8px; border:1px solid #ccc; background:#f3f3f3; cursor:pointer; }
+    #controls { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { padding:6px 8px; border:1px solid #e6e6e6; text-align:left; font-size:13px; }
+    #stats { display:flex; gap:12px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+    .stat { background:#fafafa; border:1px solid #eee; padding:8px 10px; border-radius:8px; min-width:120px; }
+    canvas { border:1px solid #eee; border-radius:6px; background:#fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Dancing Infection Simulator — Browser</h2>
+    <small>(JS port of your Python sim)</small>
+  </header>
+
+  <div id="controls">
+    <button id="addSampleTown">Add sample town (id 1)</button>
+    <button id="tickOnce">Tick once</button>
+    <button id="startStop">Start</button>
+    <label>Tick interval(ms): <input id="tickInterval" type="number" value="400" style="width:80px"></label>
+    <label>Escape enabled: <input id="escapeCheckbox" type="checkbox"></label>
+    <label>Infection period: <input id="infectionPeriod" type="number" value="3" style="width:60px"></label>
+    <label>Infection RT: <input id="infectionRt" type="number" step="0.1" value="0.5" style="width:60px"></label>
+  </div>
+
+  <div id="stats">
+    <div class="stat"><strong>Tick</strong><div id="statTick">0</div></div>
+    <div class="stat"><strong>Cities</strong><div id="statCities">0</div></div>
+    <div class="stat"><strong>Population</strong><div id="statPopulation">0</div></div>
+    <div class="stat"><strong>Infected</strong><div id="statInfected">0</div></div>
+    <div class="stat"><strong>Dead</strong><div id="statDead">0</div></div>
+  </div>
+
+  <canvas id="chart" width="700" height="140" style="margin-top:12px"></canvas>
+
+  <table id="townTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>City</th><th>Infected</th><th>Population</th><th>Alive</th><th>Dead</th><th>Calories</th><th>Tick</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+/*
+  Port of the Python simulation to browser JS.
+  Limitations:
+    - No sqlite/pandas/plot libs. Town data is in-memory.
+    - get_approx_towns uses in-memory town list and haversine.
+    - To use real town dataset, fetch JSON from your server and call simulator.loadTownData(data).
+*/
+
+// --- Utility: haversine distance in KM
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const phi1 = toRad(lat1), phi2 = toRad(lat2);
+  const dphi = toRad(lat2 - lat1), dlambda = toRad(lon2 - lon1);
+  const a = Math.sin(dphi/2)**2 + Math.cos(phi1)*Math.cos(phi2)*Math.sin(dlambda/2)**2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Town class (mirrors dataclass behavior)
+class Town {
+  constructor({id, city='test', lat=0, lng=0, population=200, infected=1, calories=100, params=null, tick=0}) {
+    this.id = id;
+    this.tick = tick;
+    this.city = city;
+    this.lat = lat;
+    this.lng = lng;
+    this.population = population;
+    this.infected = infected;
+    this.calories = calories;
+    this.dead = 0;
+    this.total_infected = infected;
+    this.params = params || {
+      bpm: 80,
+      reduction: -2,
+      infection_period: 3,
+      infection_rt: 0.5,
+      death_rate: 0.1,
+      deathpoint: 25
+    };
+    this.remaining_pop = Math.max(this.population - this.infected, 0);
+    this.alive = this.population - this.dead;
+  }
+}
+
+// Simulator class
+class DiseaseOutbreakSimulator {
+  constructor(defaultParams = {}) {
+    this.towns = {};           // keyed by town.id
+    this.globalTick = 0;
+    this.nextTownId = 1;
+    this.defaultParams = Object.assign({
+      bpm: 80,
+      reduction: -2,
+      infection_period: 3,
+      infection_rt: 0.5,
+      death_rate: 0.1,
+      deathpoint: 25
+    }, defaultParams);
+
+    this.history = []; // keep global summary per tick
+  }
+
+  // Load an array of towns (for initial dataset). Example town objects should have id, city, lat, lng, population
+  loadTownData(townArray) {
+    this.sourceTownList = townArray.slice(); // keep a copy for approx lookups
+  }
+
+  addTownByData(townData, startTick = 0, params = {}) {
+    const finalParams = Object.assign({}, this.defaultParams, params);
+    const t = new Town(Object.assign({}, townData, {params: finalParams, tick: startTick}));
+    this.towns[t.id] = t;
+    return t;
+  }
+
+  // find nearest uninfected town (in the source dataset) to a given town.id
+  getApproxTowns(id) {
+    if (!this.sourceTownList) return null;
+    const origin = this.sourceTownList.find(x => x.id === id);
+    if (!origin) return null;
+    const candidates = this.sourceTownList
+      .filter(x => x.id !== id && x.population > 0 && !(this.towns[x.id] && this.towns[x.id].total_infected > 0));
+    if (candidates.length === 0) return null;
+    candidates.forEach(c => c._dist = haversine(origin.lat, origin.lng, c.lat, c.lng));
+    candidates.sort((a,b) => a._dist - b._dist);
+    return candidates[0] ? candidates[0].id : null;
+  }
+
+  // Main tick advance
+  runTick(escapeChanceFlag = 0) {
+    this.globalTick += 1;
+    const events = [];
+
+    const keys = Object.keys(this.towns);
+    for (const tid of keys) {
+      const town = this.towns[tid];
+
+      if (town.tick >= this.globalTick) continue;
+      if (town.alive <= 0) continue;
+
+      town.tick += 1;
+
+      // 1. Update calories
+      town.calories += town.params.reduction * town.infected;
+      town.calories = Math.max(town.calories, 0);
+
+      // 2. Average calories
+      const avgCal = town.infected > 0 ? town.calories / town.infected : 0;
+
+      // 3. Death mechanic
+      if (avgCal < town.params.deathpoint && town.infected > 0) {
+        let dead = Math.ceil(town.infected * town.params.death_rate);
+        dead = Math.min(dead, town.infected);
+        town.infected -= dead;
+        town.calories -= dead * 100;
+        town.calories = Math.max(town.calories, 0);
+        town.dead += dead;
+        town.alive = Math.max(town.population - town.dead, 0);
+      }
+
+      // 4. Infection system
+      if (town.tick % town.params.infection_period === 0) {
+        const potential_new = Math.ceil(town.infected * town.params.infection_rt);
+        const new_infected = Math.min(potential_new, town.remaining_pop);
+        if (new_infected > 0) {
+          town.infected += new_infected;
+          town.calories += new_infected * 100;
+          town.total_infected += new_infected;
+          town.remaining_pop = Math.max(town.population - town.total_infected, 0);
+        }
+      }
+
+      // 5. Escape -> spawn new town if conditions met
+      if (escapeChanceFlag === 1) {
+        if (town.alive > 0 && (town.infected / town.population) > 0.5) {
+          if (Math.random() < 0.1) { // 10% chance
+            const escapeTownId = this.getApproxTowns(town.id);
+            if (escapeTownId != null && !this.towns[escapeTownId]) {
+              const newTownData = this.sourceTownList.find(x => x.id === escapeTownId);
+              if (newTownData) {
+                const created = this.addTownByData(newTownData, this.globalTick + 1);
+                events.push({type:'town_created', tick:this.globalTick, from: town.id, to: created.id});
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // capture global summary for charting
+    const summary = this.getGlobalStatus();
+    this.history.push(summary);
+    return events;
+  }
+
+  getGlobalStatus() {
+    const all = Object.values(this.towns);
+    const cityCount = all.length;
+    const population = all.reduce((s,t)=>s + (t.population || 0), 0);
+    const infected = all.reduce((s,t)=>s + (t.infected || 0), 0);
+    const dead = all.reduce((s,t)=>s + (t.dead || 0), 0);
+    const calories = all.reduce((s,t)=>s + (t.calories || 0), 0);
+    return {
+      global_tick: this.globalTick,
+      city_count: cityCount,
+      population,
+      infected,
+      dead,
+      calories
+    };
+  }
+
+  townsArray() {
+    return Object.values(this.towns).map(t => ({
+      id: t.id, city: t.city, infected: t.infected, population: t.population, alive: t.alive, dead: t.dead, calories: t.calories, tick: t.tick
+    }));
+  }
+
+  logInfectedCoords() {
+    return Object.values(this.towns)
+      .filter(t => t.total_infected > 0)
+      .map(t => ({tick: this.globalTick, lat: t.lat, lng: t.lng, infected: t.infected}));
+  }
+}
+
+// ---------------- Sample usage & basic UI ----------------
+const sampleTownDataset = [
+  {id:1, city:"Paris", lat:48.8566, lng:2.3522, population:2148000},
+  {id:2, city:"Lille", lat:50.6292, lng:3.0573, population:232800},
+  {id:3, city:"Lyon", lat:45.7640, lng:4.8357, population:515695},
+  {id:4, city:"Bordeaux", lat:44.8378, lng:-0.5792, population:252040},
+  {id:5, city:"Toulouse", lat:43.6047, lng:1.4442, population:479553},
+  {id:6, city:"Nice", lat:43.7102, lng:7.2620, population:342637},
+  // add more sample towns as desired
+];
+
+const sim = new DiseaseOutbreakSimulator();
+sim.loadTownData(sampleTownDataset);
+
+// UI bindings
+const tbody = document.querySelector("#townTable tbody");
+const statTick = document.getElementById("statTick");
+const statCities = document.getElementById("statCities");
+const statPopulation = document.getElementById("statPopulation");
+const statInfected = document.getElementById("statInfected");
+const statDead = document.getElementById("statDead");
+const chart = document.getElementById("chart");
+const ctx = chart.getContext("2d");
+
+function renderTable() {
+  tbody.innerHTML = "";
+  sim.townsArray().forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.id}</td><td>${row.city}</td><td>${row.infected}</td><td>${row.population}</td><td>${row.alive}</td><td>${row.dead}</td><td>${row.calories}</td><td>${row.tick}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderStats() {
+  const s = sim.getGlobalStatus();
+  statTick.textContent = s.global_tick;
+  statCities.textContent = s.city_count;
+  statPopulation.textContent = s.population;
+  statInfected.textContent = s.infected;
+  statDead.textContent = s.dead;
+}
+
+function drawChart() {
+  // simple line of infected over ticks
+  const h = sim.history;
+  ctx.clearRect(0,0,chart.width,chart.height);
+  if (h.length === 0) return;
+  // find max infected/pop for scaling
+  const maxInfected = Math.max(...h.map(x => x.infected), 1);
+  const maxTick = Math.max(...h.map(x => x.global_tick), 1);
+  // padding
+  const pad = 8;
+  const w = chart.width - pad*2;
+  const hh = chart.height - pad*2;
+  ctx.beginPath();
+  ctx.strokeStyle = "#d9534f";
+  ctx.lineWidth = 2;
+  for (let i=0;i<h.length;i++){
+    const x = pad + (i / Math.max(h.length-1,1)) * w;
+    const y = pad + hh - (h[i].infected / maxInfected) * hh;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // axis labels
+  ctx.fillStyle = "#333"; ctx.font = "12px sans-serif";
+  ctx.fillText("Infected over ticks", 8, 12);
+}
+
+function refreshUI() {
+  renderTable();
+  renderStats();
+  drawChart();
+}
+
+// initial UI state
+refreshUI();
+
+// controls
+document.getElementById("addSampleTown").addEventListener("click", () => {
+  // add Paris infected (id 1)
+  sim.addTownByData(sampleTownDataset[0], 0);
+  refreshUI();
+});
+
+document.getElementById("tickOnce").addEventListener("click", () => {
+  const escapeFlag = document.getElementById("escapeCheckbox").checked ? 1 : 0;
+  const ip = parseInt(document.getElementById("infectionPeriod").value, 10);
+  const ir = parseFloat(document.getElementById("infectionRt").value);
+  // apply global params to all towns (simple approach)
+  Object.values(sim.towns).forEach(t => {
+    t.params.infection_period = ip;
+    t.params.infection_rt = ir;
+  });
+  sim.runTick(escapeFlag);
+  refreshUI();
+});
+
+// start/stop loop
+let running = false;
+let timer = null;
+const startStopBtn = document.getElementById("startStop");
+startStopBtn.addEventListener("click", () => {
+  if (!running) {
+    running = true;
+    startStopBtn.textContent = "Stop";
+    const interval = Math.max(50, parseInt(document.getElementById("tickInterval").value, 10) || 400);
+    timer = setInterval(() => {
+      document.getElementById("tickOnce").click();
+    }, interval);
+  } else {
+    running = false;
+    startStopBtn.textContent = "Start";
+    clearInterval(timer);
+    timer = null;
+  }
+});
+
+// convenience: add first town on load for demo
+sim.addTownByData(sampleTownDataset[0], 0);
+refreshUI();
+
+</script>
+</body>
+</html>
